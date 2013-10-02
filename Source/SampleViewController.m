@@ -8,6 +8,7 @@
 #import "SampleViewController.h"
 #import <ArcGIS/ArcGIS.h>
 #import "AGSProcessedTiledMapServiceLayer.h"
+#import "AGSPrecacheTiledServiceLayer.h"
 
 @interface SampleViewController () <AGSMapViewLayerDelegate>
 @property (weak, nonatomic) IBOutlet AGSMapView *mapView;
@@ -28,21 +29,23 @@
     // Set up a basemap TiledMapService layer
 	// http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer
 	
-    AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer sepiaBlockWithIntensity:0.8];
+//    AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer sepiaBlockWithIntensity:0.8];
     
 	NSURL *basemapURL = [NSURL URLWithString:kGreyURL];
 	AGSTiledMapServiceLayer *basemapLayer = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:basemapURL];
 
-    AGSProcessedTiledMapServiceLayer *genLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:basemapLayer processingTilesWithBlock:block];
-    
-    NSURL *basemapURL2 = [NSURL URLWithString:kGreyRefURL];
-    AGSTiledMapServiceLayer *basemapLayer2 = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:basemapURL2];
-    AGSCITileProcessingBlock block2 = [AGSProcessedTiledMapServiceLayer sepiaBlockWithIntensity:1];
-    AGSProcessedTiledMapServiceLayer *genLayer2 = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:basemapLayer2
-                                                                                      processingTilesWithBlock:block2];
+    AGSPrecacheTiledServiceLayer *genLayer =
+        [[AGSPrecacheTiledServiceLayer alloc] initWithTiledLayer:basemapLayer];
+//    AGSProcessedTiledMapServiceLayer *genLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:basemapLayer processingTilesWithBlock:block];
+//    
+//    NSURL *basemapURL2 = [NSURL URLWithString:kGreyRefURL];
+//    AGSTiledMapServiceLayer *basemapLayer2 = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:basemapURL2];
+//    AGSCITileProcessingBlock block2 = [AGSProcessedTiledMapServiceLayer sepiaBlockWithIntensity:1];
+//    AGSProcessedTiledMapServiceLayer *genLayer2 = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:basemapLayer2
+//                                                                                      processingTilesWithBlock:block2];
     
     [self.mapView addMapLayer:genLayer];
-    [self.mapView addMapLayer:genLayer2];
+//    [self.mapView addMapLayer:genLayer2];
     
     [self.mapView enableWrapAround];
     
