@@ -1,4 +1,4 @@
-generic-tiled-layer-ios
+tiled-layer-generic-ios
 =======================
 
-A generic ArcGIS Runtime for iOS layer that applies Core Image effects to tiles
+A generic ArcGIS Runtime for iOS layer that applies Core Image effects to tiles.

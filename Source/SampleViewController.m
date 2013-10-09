@@ -9,10 +9,17 @@
 #import <ArcGIS/ArcGIS.h>
 #import "AGSProcessedTiledMapServiceLayer.h"
 #import "AGSPrecacheTiledServiceLayer.h"
+#import "AGSLODLimitedTiledLayer.h"
 
 @interface SampleViewController () <AGSMapViewLayerDelegate>
 @property (weak, nonatomic) IBOutlet AGSMapView *mapView;
 @end
+
+typedef enum
+{
+    AGSCustomTileLayerTypeCoreImageProcessed,
+    AGSCustomTileLayerTypePrecached
+} AGSCustomTileLayerType;
 
 #define kStreet2DURL @"http://server.arcgisonline.com/ArcGIS/rest/services/ESRI_StreetMap_World_2D/MapServer"
 #define kTopoURL @"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer"
@@ -25,32 +32,38 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
-    // Set up a basemap TiledMapService layer
-	// http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer
-	
-//    AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer sepiaBlockWithIntensity:0.8];
-    
-	NSURL *basemapURL = [NSURL URLWithString:kGreyURL];
-	AGSTiledMapServiceLayer *basemapLayer = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:basemapURL];
 
-    AGSPrecacheTiledServiceLayer *genLayer =
-        [[AGSPrecacheTiledServiceLayer alloc] initWithTiledLayer:basemapLayer];
-//    AGSProcessedTiledMapServiceLayer *genLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:basemapLayer processingTilesWithBlock:block];
-//    
-    NSURL *basemapURL2 = [NSURL URLWithString:kGreyRefURL];
-    AGSTiledMapServiceLayer *basemapLayer2 = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:basemapURL2];
-//    AGSCITileProcessingBlock block2 = [AGSProcessedTiledMapServiceLayer sepiaBlockWithIntensity:1];
-//    AGSProcessedTiledMapServiceLayer *genLayer2 = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:basemapLayer2
-//                                                                                      processingTilesWithBlock:block2];
-    AGSPrecacheTiledServiceLayer *genLayer2 = [[AGSPrecacheTiledServiceLayer alloc] initWithTiledLayer:basemapLayer2];
+    NSArray *sourceLayers = @[
+        [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:[NSURL URLWithString:kGreyURL]],
+        [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:[NSURL URLWithString:kGreyRefURL]]
+    ];
+
+    AGSCustomTileLayerType sampleType = AGSCustomTileLayerTypePrecached;
+
+    NSMutableArray *wrappedLayers = [NSMutableArray array];
     
-    [self.mapView addMapLayer:genLayer];
-    [self.mapView addMapLayer:genLayer2];
+    for (id sourceLayer in sourceLayers) {
+        id wrappedLayer = nil;
+        switch (sampleType) {
+            case AGSCustomTileLayerTypeCoreImageProcessed:
+                wrappedLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:sourceLayer
+                                                                   processingTilesWithBlock:[AGSProcessedTiledMapServiceLayer sepiaBlockWithIntensity:1.0]];
+                break;
+                
+            case AGSCustomTileLayerTypePrecached:
+                wrappedLayer = [[AGSPrecacheTiledServiceLayer alloc] initWithTiledLayer:sourceLayer];
+                break;
+        }
+        [wrappedLayers addObject:wrappedLayer];
+    }
+
+    for (AGSLayer *layer in wrappedLayers) {
+        [self.mapView addMapLayer:layer];
+    }
     
     [self.mapView enableWrapAround];
-    
-//    self.mapView.layerDelegate = self;
+
+    self.mapView.layerDelegate = self;
 }
 
 -(void)mapViewDidLoad:(AGSMapView *)mapView {
