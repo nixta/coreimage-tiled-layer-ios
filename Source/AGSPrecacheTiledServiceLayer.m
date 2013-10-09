@@ -12,7 +12,8 @@ typedef enum {
     AGSTileLoadingStateNone,
     AGSTileLoadingStateLoading,
     AGSTileLoadingStateLoaded,
-    AGSTileLoadingStateCached
+    AGSTileLoadingStateCached,
+    AGSTileLoadingStateFailed
 } AGSTileLoadingState;
 
 #pragma mark - Precache Tile Operation Delegate Potocol
@@ -20,18 +21,22 @@ typedef enum {
 
 @protocol AGSPrecachedTileOperationDelegate <NSObject>
 -(void)precacheTileOperation:(AGSPrecachedTileOperation *)operation
-              loadedTileData:(NSData *)tileData
+                      loaded:(BOOL)loaded
+                    tileData:(NSData *)tileData
                   forTileKey:(AGSTileKey *)tileKey;
 @end
 
 @interface AGSPrecacheTiledServiceLayer () <AGSPrecachedTileOperationDelegate, AGSLayerDelegate>
 @property (nonatomic, strong) NSMutableDictionary *cachedTiles;
 @property (nonatomic, strong) NSMutableDictionary *lodsByLevel;
+-(void)cacheData:(NSData *)tileData forTileKey:(AGSTileKey *)key;
 -(NSData *)cachedDataForTileKey:(AGSTileKey *)key;
+-(NSArray *)adjacentKeysToKey:(AGSTileKey *)key;
+-(NSArray *)adjacentUncachedKeysToKey:(AGSTileKey *)key;
 @end
 
 @interface AGSPrecacheTiledCacheEntry : NSObject
-@property (nonatomic, strong, readonly) NSData *tileData;
+@property (nonatomic, strong) NSData *tileData;
 @property (nonatomic, strong, readonly) AGSTileKey *tileKey;
 @property (nonatomic, strong, readonly) NSDate *created;
 @property (nonatomic, strong, readonly) NSDate *lastAccessed;
@@ -46,19 +51,25 @@ typedef enum {
 {
     self = [super init];
     if (self) {
-        _tileData = tileData;
         _tileKey = key;
         _created = [NSDate date];
-        _lastAccessed = nil;
-        _loadingState = tileData?AGSTileLoadingStateLoaded:AGSTileLoadingStateNone;
+        _lastAccessed = [NSDate date];
+        self.tileData = tileData;
     }
     return self;
 }
 
 +(AGSPrecacheTiledCacheEntry *)tiledCacheEntry:(NSData *)tileData forKey:(AGSTileKey *)key
 {
-    AGSPrecacheTiledCacheEntry *entry = [[AGSPrecacheTiledCacheEntry alloc] initWithTileData:tileData forKey:key];
+    AGSPrecacheTiledCacheEntry *entry = [[AGSPrecacheTiledCacheEntry alloc] initWithTileData:tileData
+                                                                                      forKey:key];
     return entry;
+}
+
+-(void)setTileData:(NSData *)tileData
+{
+    _tileData = tileData;
+    _loadingState = _tileData?AGSTileLoadingStateLoaded:AGSTileLoadingStateNone;
 }
 
 -(NSData *)tileData
@@ -84,26 +95,46 @@ typedef enum {
 @interface AGSPrecachedTileOperation : NSOperation
 -(id)initWithTileKey:(AGSTileKey *)tileKey
         forBaseLayer:(AGSTiledLayer *)baseLayer
-         forDelegate:(id<AGSPrecachedTileOperationDelegate>)target;
+         forDelegate:(id<AGSPrecachedTileOperationDelegate>)target
+     alsoGetAdjacent:(BOOL)getAdjacent;
 @property (nonatomic, strong, readonly) AGSTileKey *tileKey;
 @property (nonatomic, strong) AGSTiledServiceLayer *baseLayer;
 @property (nonatomic, weak) id<AGSPrecachedTileOperationDelegate> delegate;
+@property (nonatomic, assign) BOOL getAdjacent;
 @end
 
 @implementation AGSPrecachedTileOperation
 -(id)initWithTileKey:(AGSTileKey *)tileKey
         forBaseLayer:(AGSTiledServiceLayer *)baseLayer
          forDelegate:(id<AGSPrecachedTileOperationDelegate>)target
+     alsoGetAdjacent:(BOOL)getAdjacent
 {
     self = [super init];
     if (self)
     {
         _tileKey = tileKey;
         _baseLayer = baseLayer;
+        _getAdjacent = getAdjacent;
         self.delegate = target;
-        NSLog(@"Created Operation");
     }
     return self;
+}
+
+-(BOOL)isConcurrent
+{
+    return YES;
+}
+
+-(void)callDelegateWithData:(NSData *)data forKey:(AGSTileKey *)tileKey
+{
+    if (self.delegate &&
+        [self.delegate respondsToSelector:@selector(precacheTileOperation:loaded:tileData:forTileKey:)])
+    {
+        [self.delegate precacheTileOperation:self
+                                      loaded:NO
+                                    tileData:data
+                                  forTileKey:tileKey];
+    }
 }
 
 -(void)main
@@ -114,60 +145,85 @@ typedef enum {
     }
     
     NSData *myTileData = nil;
+
+    BOOL foundCachedData = NO;
     
+    AGSPrecacheTiledServiceLayer *dataSource = nil;
     if ([self.delegate isKindOfClass:[AGSPrecacheTiledServiceLayer class]])
     {
-        AGSPrecacheTiledServiceLayer *dataSource = (AGSPrecacheTiledServiceLayer *)self.delegate;
-        myTileData = [dataSource cachedDataForTileKey:_tileKey];
+        dataSource = (AGSPrecacheTiledServiceLayer *)self.delegate;
+    }
+    
+//    NSLog(@"Looking for tile data: %@", self.tileKey.uniqueKeyForLayer);
+
+    if (dataSource)
+    {
+        myTileData = [dataSource cachedDataForTileKey:self.tileKey];
         if (myTileData) {
             // There was cached data.
-            NSLog(@"Found cached tile: %@", _tileKey.uniqueKeyForLayer);
-            if (self.delegate &&
-                [self.delegate respondsToSelector:@selector(precacheTileOperation:loadedTileData:forTileKey:)])
-            {
-                [self.delegate precacheTileOperation:self
-                                      loadedTileData:myTileData
-                                          forTileKey:_tileKey];
-            }
-            return;
+            NSLog(@"Found cached tile: %@", self.tileKey.uniqueKeyForLayer);
+            foundCachedData = YES;
+            
+            [self callDelegateWithData:myTileData forKey:self.tileKey];
+        } else {
+//            NSLog(@"No cached data for tile %@", self.tileKey.uniqueKeyForLayer);
         }
     }
 
-    // No cached data. Let's load the layer.
-    @try {
-        NSLog(@"Getting tile: %@", self.tileKey.uniqueKeyForLayer);
-        NSURL *tileUrl = [self.baseLayer urlForTileKey:self.tileKey];
-        NSURLRequest *req = [NSURLRequest requestWithURL:tileUrl];
-        NSURLResponse *resp = nil;
-        NSError *error = nil;
-        myTileData = [NSURLConnection sendSynchronousRequest:req
-                                           returningResponse:&resp
-                                                       error:&error];
-        if (error)
-        {
-            NSLog(@"Error getting tile %@ from %@: %@", self.tileKey, tileUrl, error);
-            return;
-        }
-        NSLog(@"Got tile: %@", self.tileKey.uniqueKeyForLayer);
-        if (self.isCancelled)
-        {
-            NSLog(@"Cancelled: %@", self.tileKey.uniqueKeyForLayer);
-            return;
-        }
-    }
-    @catch (NSException *exception) {
-        NSLog(@"Exception getting tile %@: %@", self.tileKey, exception);
-    }
-    @finally {
-        if (!self.isCancelled)
-        {
-            if (self.delegate &&
-                [self.delegate respondsToSelector:@selector(precacheTileOperation:loadedTileData:forTileKey:)])
+    if (!foundCachedData)
+    {
+        // No cached data. Let's load the layer.
+        @try {
+//            NSLog(@"Getting tile: %@", self.tileKey.uniqueKeyForLayer);
+            NSURL *tileUrl = [self.baseLayer urlForTileKey:self.tileKey];
+            NSURLRequest *req = [NSURLRequest requestWithURL:tileUrl];
+            NSURLResponse *resp = nil;
+            NSError *error = nil;
+            myTileData = [NSURLConnection sendSynchronousRequest:req
+                                               returningResponse:&resp
+                                                           error:&error];
+            NSLog(@"Loaded uncached tile: %@", self.tileKey.uniqueKeyForLayer);
+            if (error)
             {
-                [self.delegate precacheTileOperation:self
-                                      loadedTileData:myTileData
-                                          forTileKey:_tileKey];
+                NSLog(@"Error getting tile %@ from %@: %@", self.tileKey, tileUrl, error);
+                return;
             }
+    //        NSLog(@"Got tile: %@", self.tileKey.uniqueKeyForLayer);
+            if (self.isCancelled)
+            {
+                NSLog(@"Cancelled: %@", self.tileKey.uniqueKeyForLayer);
+                return;
+            }
+
+            if (dataSource)
+            {
+                [dataSource cacheData:myTileData forTileKey:self.tileKey];
+            }
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Exception getting tile %@: %@", self.tileKey, exception);
+        }
+        @finally {
+            if (!self.isCancelled)
+            {
+                [self callDelegateWithData:myTileData forKey:self.tileKey];
+            }
+        }
+    }
+    
+    if (dataSource && self.getAdjacent)
+    {
+        NSArray *adjacentTiles = [dataSource adjacentUncachedKeysToKey:self.tileKey];
+        for (AGSTileKey *k in adjacentTiles)
+        {
+            NSLog(@"   Precaching adjacent tile: %@", k.uniqueKeyForLayer);
+            AGSPrecachedTileOperation *op =
+            [[AGSPrecachedTileOperation alloc] initWithTileKey:k
+                                                  forBaseLayer:_baseLayer
+                                                   forDelegate:dataSource
+                                               alsoGetAdjacent:NO];
+            
+            [[AGSRequestOperation sharedOperationQueue] addOperation:op];
         }
     }
 }
@@ -221,19 +277,14 @@ typedef enum {
 
 -(void)requestTileForKey:(AGSTileKey *)key
 {
-    NSLog(@"Requested Key: %@", key.uniqueKeyForLayer);
+    NSLog(@"Requested Tile: %@", key.uniqueKeyForLayer);
     AGSPrecachedTileOperation *op =
     [[AGSPrecachedTileOperation alloc] initWithTileKey:key
                                           forBaseLayer:_wrappedTiledLayer
-                                           forDelegate:self];
-    
-    [[AGSRequestOperation sharedOperationQueue] addOperation:op];
+                                           forDelegate:self
+                                       alsoGetAdjacent:YES];
 
-    NSArray *adjacentTiles = [self adjacentKeysToKey:key];
-    for (AGSTileKey *k in adjacentTiles)
-    {
-        NSLog(@"   Adjacent Key: %@", k.uniqueKeyForLayer);
-    }
+    [[AGSRequestOperation sharedOperationQueue] addOperation:op];
 }
 
 -(void)cancelRequestForKey:(AGSTileKey *)key
@@ -256,25 +307,41 @@ typedef enum {
 
 -(NSData *)cachedDataForTileKey:(AGSTileKey *)key
 {
-    return [self.cachedTiles objectForKey:key.uniqueKeyForLayer];
+    @synchronized(self.cachedTiles)
+    {
+        return [[self.cachedTiles objectForKey:key.uniqueKeyForLayer] tileData];
+    }
 }
 
 -(void)cacheData:(NSData *)tileData forTileKey:(AGSTileKey *)key
 {
     if (tileData)
     {
-        [self.cachedTiles setObject:tileData forKey:key.uniqueKeyForLayer];
+        @synchronized(self.cachedTiles)
+        {
+            AGSPrecacheTiledCacheEntry *cacheEntry = self.cachedTiles[key.uniqueKeyForLayer];
+            if (!cacheEntry)
+            {
+                cacheEntry = [AGSPrecacheTiledCacheEntry tiledCacheEntry:tileData forKey:key];
+                [self.cachedTiles setObject:cacheEntry forKey:key.uniqueKeyForLayer];
+            }
+            else
+            {
+                cacheEntry.tileData = tileData;
+            }
+        }
     }
 }
 
 -(void)precacheTileOperation:(AGSPrecachedTileOperation *)operation
-              loadedTileData:(NSData *)tileData
+                      loaded:(BOOL)loaded
+                    tileData:(NSData *)tileData
                   forTileKey:(AGSTileKey *)tileKey
 {
+    // Our operation got some tile data
     if (!operation.isCancelled)
     {
-        // Cache the tile
-        if (![self cachedDataForTileKey:tileKey])
+        if (loaded)
         {
             [self cacheData:tileData forTileKey:tileKey];
         }
@@ -289,10 +356,12 @@ typedef enum {
     NSMutableArray *adjacentKeys = [NSMutableArray array];
     NSInteger lCol = key.column - 1;
     NSInteger rCol = key.column + 1;
-    NSInteger dRow = key.row - 1;
-    NSInteger uRow = key.row + 1;
+    NSInteger bRow = key.row - 1;
+    NSInteger tRow = key.row + 1;
+
     AGSLOD *thisLOD = self.lodsByLevel[[NSNumber numberWithInteger:key.level]];
-    if (lCol < thisLOD.startTileColumn)
+
+    if (lCol < (NSInteger)thisLOD.startTileColumn)
     {
         lCol = thisLOD.endTileColumn;
     }
@@ -300,25 +369,33 @@ typedef enum {
     {
         rCol = thisLOD.startTileColumn;
     }
-    if (dRow < thisLOD.startTileRow)
+    if (bRow < (NSInteger)thisLOD.startTileRow)
     {
-        dRow = thisLOD.endTileRow;
+        bRow = thisLOD.endTileRow;
     }
-    if (uRow > thisLOD.endTileRow)
+    if (tRow > thisLOD.endTileRow)
     {
-        uRow = thisLOD.startTileRow;
+        tRow = thisLOD.startTileRow;
     }
     // Now get a set of keys and add them to the array
-    for (NSInteger c = lCol; c < rCol; c++)
+    for (NSInteger r = bRow; r <= tRow; r++)
     {
-        for (NSInteger r = uRow; r > dRow; r--)
+        for (NSInteger c = lCol; c <= rCol; c++)
         {
-            if (c != key.column && r != key.row)
+            if (c != key.column || r != key.row)
             {
                 [adjacentKeys addObject:[AGSTileKey tileKeyWithColumn:c row:r level:key.level]];
             }
         }
     }
     return adjacentKeys;
+}
+
+-(NSArray *)adjacentUncachedKeysToKey:(AGSTileKey *)key
+{
+    return [[self adjacentKeysToKey:key] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+        AGSTileKey *thisKey = evaluatedObject;
+        return ([self cachedDataForTileKey:thisKey] == nil);
+    }]];
 }
 @end
