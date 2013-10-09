@@ -8,14 +8,6 @@
 
 #import "AGSPrecacheTiledServiceLayer.h"
 
-typedef enum {
-    AGSTileLoadingStateNone,
-    AGSTileLoadingStateLoading,
-    AGSTileLoadingStateLoaded,
-    AGSTileLoadingStateCached,
-    AGSTileLoadingStateFailed
-} AGSTileLoadingState;
-
 #pragma mark - Precache Tile Operation Delegate Potocol
 @class AGSPrecachedTileOperation;
 
@@ -40,7 +32,6 @@ typedef enum {
 @property (nonatomic, strong, readonly) AGSTileKey *tileKey;
 @property (nonatomic, strong, readonly) NSDate *created;
 @property (nonatomic, strong, readonly) NSDate *lastAccessed;
-@property (nonatomic, assign) AGSTileLoadingState loadingState;
 +(AGSPrecacheTiledCacheEntry *)tiledCacheEntry:(NSData *)tileData forKey:(AGSTileKey *)key;
 @end
 
@@ -69,7 +60,6 @@ typedef enum {
 -(void)setTileData:(NSData *)tileData
 {
     _tileData = tileData;
-    _loadingState = _tileData?AGSTileLoadingStateLoaded:AGSTileLoadingStateNone;
 }
 
 -(NSData *)tileData
