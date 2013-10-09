@@ -125,13 +125,13 @@ typedef enum {
     return YES;
 }
 
--(void)callDelegateWithData:(NSData *)data forKey:(AGSTileKey *)tileKey
+-(void)callDelegateWithData:(NSData *)data forKey:(AGSTileKey *)tileKey wasLoaded:(BOOL)loaded
 {
     if (self.delegate &&
         [self.delegate respondsToSelector:@selector(precacheTileOperation:loaded:tileData:forTileKey:)])
     {
         [self.delegate precacheTileOperation:self
-                                      loaded:NO
+                                      loaded:loaded
                                     tileData:data
                                   forTileKey:tileKey];
     }
@@ -158,13 +158,15 @@ typedef enum {
 
     if (dataSource)
     {
+        // This could happen if we've been queued multiple times and in the meantime
+        // the data has come back and a cache entry has been created.
         myTileData = [dataSource cachedDataForTileKey:self.tileKey];
         if (myTileData) {
             // There was cached data.
             NSLog(@"Found cached tile: %@", self.tileKey.uniqueKeyForLayer);
             foundCachedData = YES;
             
-            [self callDelegateWithData:myTileData forKey:self.tileKey];
+            [self callDelegateWithData:myTileData forKey:self.tileKey wasLoaded:NO];
         } else {
 //            NSLog(@"No cached data for tile %@", self.tileKey.uniqueKeyForLayer);
         }
@@ -199,15 +201,10 @@ typedef enum {
             {
                 [dataSource cacheData:myTileData forTileKey:self.tileKey];
             }
+            [self callDelegateWithData:myTileData forKey:self.tileKey wasLoaded:YES];
         }
         @catch (NSException *exception) {
             NSLog(@"Exception getting tile %@: %@", self.tileKey, exception);
-        }
-        @finally {
-            if (!self.isCancelled)
-            {
-                [self callDelegateWithData:myTileData forKey:self.tileKey];
-            }
         }
     }
     
@@ -277,14 +274,24 @@ typedef enum {
 
 -(void)requestTileForKey:(AGSTileKey *)key
 {
-    NSLog(@"Requested Tile: %@", key.uniqueKeyForLayer);
-    AGSPrecachedTileOperation *op =
-    [[AGSPrecachedTileOperation alloc] initWithTileKey:key
-                                          forBaseLayer:_wrappedTiledLayer
-                                           forDelegate:self
-                                       alsoGetAdjacent:YES];
+    NSLog(@"Map asked for %@", key.uniqueKeyForLayer);
+    NSData *tileData = [self cachedDataForTileKey:key];
+    if (tileData)
+    {
+        NSLog(@"Direct return of cached data for %@", key.uniqueKeyForLayer);
+        [self setTileData:tileData forKey:key];
+    } else {
+        NSLog(@"Gotta cache %@", key.uniqueKeyForLayer);
+        AGSPrecachedTileOperation *op =
+        [[AGSPrecachedTileOperation alloc] initWithTileKey:key
+                                              forBaseLayer:_wrappedTiledLayer
+                                               forDelegate:self
+                                           alsoGetAdjacent:YES];
+        NSLog(@"Created operation for %@", key.uniqueKeyForLayer);
 
-    [[AGSRequestOperation sharedOperationQueue] addOperation:op];
+        [[AGSRequestOperation sharedOperationQueue] addOperation:op];
+        NSLog(@"Added operation to queue for %@", key.uniqueKeyForLayer);
+    }
 }
 
 -(void)cancelRequestForKey:(AGSTileKey *)key

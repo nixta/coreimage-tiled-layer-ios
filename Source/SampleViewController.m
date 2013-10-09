@@ -38,14 +38,15 @@
         [[AGSPrecacheTiledServiceLayer alloc] initWithTiledLayer:basemapLayer];
 //    AGSProcessedTiledMapServiceLayer *genLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:basemapLayer processingTilesWithBlock:block];
 //    
-//    NSURL *basemapURL2 = [NSURL URLWithString:kGreyRefURL];
-//    AGSTiledMapServiceLayer *basemapLayer2 = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:basemapURL2];
+    NSURL *basemapURL2 = [NSURL URLWithString:kGreyRefURL];
+    AGSTiledMapServiceLayer *basemapLayer2 = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:basemapURL2];
 //    AGSCITileProcessingBlock block2 = [AGSProcessedTiledMapServiceLayer sepiaBlockWithIntensity:1];
 //    AGSProcessedTiledMapServiceLayer *genLayer2 = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:basemapLayer2
 //                                                                                      processingTilesWithBlock:block2];
+    AGSPrecacheTiledServiceLayer *genLayer2 = [[AGSPrecacheTiledServiceLayer alloc] initWithTiledLayer:basemapLayer2];
     
     [self.mapView addMapLayer:genLayer];
-//    [self.mapView addMapLayer:genLayer2];
+    [self.mapView addMapLayer:genLayer2];
     
     [self.mapView enableWrapAround];
     
