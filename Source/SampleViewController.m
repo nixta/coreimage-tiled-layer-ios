@@ -9,7 +9,6 @@
 #import <ArcGIS/ArcGIS.h>
 #import "AGSProcessedTiledMapServiceLayer.h"
 #import "AGSPrecacheTiledServiceLayer.h"
-#import "AGSLODLimitedTiledLayer.h"
 
 @interface SampleViewController () <AGSMapViewLayerDelegate>
 @property (weak, nonatomic) IBOutlet AGSMapView *mapView;

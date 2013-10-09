@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		651F37FA17AFFA21002E5457 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 651F37F917AFFA21002E5457 /* CoreImage.framework */; };
-		65E8978817AD92D00037C5BB /* AGSLODLimitedTiledLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65E8978717AD92D00037C5BB /* AGSLODLimitedTiledLayer.m */; };
 		65E8978B17AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65E8978A17AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.m */; };
 		D95F921416F2147F0007D7F5 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D95F921316F2147F0007D7F5 /* libc++.dylib */; };
 		D95F921616F214870007D7F5 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D95F921516F214870007D7F5 /* OpenGLES.framework */; };
@@ -38,8 +37,6 @@
 
 /* Begin PBXFileReference section */
 		651F37F917AFFA21002E5457 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
-		65E8978617AD92D00037C5BB /* AGSLODLimitedTiledLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGSLODLimitedTiledLayer.h; sourceTree = "<group>"; };
-		65E8978717AD92D00037C5BB /* AGSLODLimitedTiledLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGSLODLimitedTiledLayer.m; sourceTree = "<group>"; };
 		65E8978917AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGSProcessedTiledMapServiceLayer.h; sourceTree = "<group>"; };
 		65E8978A17AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGSProcessedTiledMapServiceLayer.m; sourceTree = "<group>"; };
 		D95F921316F2147F0007D7F5 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
@@ -99,15 +96,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		D9F11CA21805F4CB00A15C07 /* LOD Limited Layer */ = {
-			isa = PBXGroup;
-			children = (
-				65E8978617AD92D00037C5BB /* AGSLODLimitedTiledLayer.h */,
-				65E8978717AD92D00037C5BB /* AGSLODLimitedTiledLayer.m */,
-			);
-			name = "LOD Limited Layer";
-			sourceTree = "<group>";
-		};
 		D9F11CA31805F4DB00A15C07 /* Core Image Processed Layer */ = {
 			isa = PBXGroup;
 			children = (
@@ -168,7 +156,6 @@
 			children = (
 				D9F11CA51806004300A15C07 /* AGSGenericTileOperation.h */,
 				D9F11CA61806004300A15C07 /* AGSGenericTileOperation.m */,
-				D9F11CA21805F4CB00A15C07 /* LOD Limited Layer */,
 				D9F11CA31805F4DB00A15C07 /* Core Image Processed Layer */,
 				D9F11CA41805F4E800A15C07 /* Pre-cached Layer */,
 				E169808916387B6C00A1F2E5 /* SampleAppDelegate.h */,
@@ -276,7 +263,6 @@
 				E169808B16387B6C00A1F2E5 /* SampleAppDelegate.m in Sources */,
 				E169809A16387B6C00A1F2E5 /* SampleViewController.m in Sources */,
 				D9A82DEC17FB808C001CE86E /* AGSPrecacheTiledServiceLayer.m in Sources */,
-				65E8978817AD92D00037C5BB /* AGSLODLimitedTiledLayer.m in Sources */,
 				65E8978B17AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
