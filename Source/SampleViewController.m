@@ -39,24 +39,24 @@ typedef enum
 
     AGSCustomTileLayerType sampleType = AGSCustomTileLayerTypePrecached;
 
-    NSMutableArray *wrappedLayers = [NSMutableArray array];
+    NSMutableArray *wrapperLayers = [NSMutableArray array];
     
     for (id sourceLayer in sourceLayers) {
-        id wrappedLayer = nil;
+        AGSTiledLayer *wrapperLayer = nil;
         switch (sampleType) {
             case AGSCustomTileLayerTypeCoreImageProcessed:
-                wrappedLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:sourceLayer
+                wrapperLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:sourceLayer
                                                                    processingTilesWithBlock:[AGSProcessedTiledMapServiceLayer sepiaBlockWithIntensity:1.0]];
                 break;
                 
             case AGSCustomTileLayerTypePrecached:
-                wrappedLayer = [[AGSPrecacheTiledServiceLayer alloc] initWithTiledLayer:sourceLayer];
+                wrapperLayer = [[AGSPrecacheTiledServiceLayer alloc] initWithTiledLayer:sourceLayer];
                 break;
         }
-        [wrappedLayers addObject:wrappedLayer];
+        [wrapperLayers addObject:wrapperLayer];
     }
 
-    for (AGSLayer *layer in wrappedLayers) {
+    for (AGSLayer *layer in wrapperLayers) {
         [self.mapView addMapLayer:layer];
     }
     

@@ -8,6 +8,37 @@
 
 #import "AGSGenericTileOperation.h"
 
+NSString *const AGSGenericTileDataLoaded = @"AGSGenericTileDataLoadedNotification";
+
+@implementation AGSGenericTileDataLoadedNotification
+@synthesize tileKey = _tileKey;
+@synthesize tileData = _tileData;
+-(id)initWithData:(NSData *)tileData key:(AGSTileKey *)tileKey layer:(AGSTiledServiceLayer *)layer
+{
+    self = [super initWithName:AGSGenericTileDataLoaded
+                        object:layer
+                      userInfo:@{
+                                 @"tileData": tileData,
+                                 @"tileKey": tileKey
+            }];
+    if (self) {
+        _tileData = tileData;
+        _tileKey = tileKey;
+    }
+    return self;
+}
+
+-(NSData *)tileData
+{
+    return self.userInfo[@"tileData"];
+}
+
+-(AGSTileKey *)tileKey
+{
+    return self.userInfo[@"tileKey"];
+}
+@end
+
 @implementation AGSGenericTileOperation
 -(id)initWithTileKey:(AGSTileKey *)tileKey
        forTiledLayer:(AGSTiledServiceLayer *)sourceTiledLayer
@@ -67,6 +98,10 @@
                                      loadedTileData:myTileData
                                          forTileKey:self.tileKey];
             }
+            AGSGenericTileDataLoadedNotification *notification = [[AGSGenericTileDataLoadedNotification alloc] initWithData:myTileData
+                                                                                                                        key:self.tileKey
+                                                                                                                      layer:self.sourceTiledLayer];
+            [[NSNotificationCenter defaultCenter] postNotification:notification];
         }
     }
 }

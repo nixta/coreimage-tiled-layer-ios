@@ -268,8 +268,10 @@
     NSData *tileData = [self cachedDataForTileKey:key];
     if (tileData)
     {
-        NSLog(@"Direct return of cached data for %@", key.uniqueKeyForLayer);
-        [self setTileData:tileData forKey:key];
+//        dispatch_async(dispatch_get_main_queue(), ^{
+            NSLog(@"Direct return of cached data for %@", key.uniqueKeyForLayer);
+            [self setTileData:tileData forKey:key];
+//        });
     } else {
         NSLog(@"Gotta cache %@", key.uniqueKeyForLayer);
         AGSPrecachedTileOperation *op =
