@@ -16,7 +16,8 @@
 
 typedef enum
 {
-    AGSCustomTileLayerTypeCoreImageProcessed,
+    AGSCustomTileLayerTypeCoreImageProcessedBlock,
+    AGSCustomTileLayerTypeCoreImageProcessedFilter,
     AGSCustomTileLayerTypePrecached
 } AGSCustomTileLayerType;
 
@@ -37,26 +38,37 @@ typedef enum
         [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:[NSURL URLWithString:kGreyRefURL]]
     ];
 
-    AGSCustomTileLayerType sampleType = AGSCustomTileLayerTypePrecached;
+    AGSCustomTileLayerType sampleType = AGSCustomTileLayerTypeCoreImageProcessedFilter;
 
-    NSMutableArray *wrapperLayers = [NSMutableArray array];
+    NSMutableArray *wrappedLayers = [NSMutableArray array];
     
     for (id sourceLayer in sourceLayers) {
-        AGSTiledLayer *wrapperLayer = nil;
+        id wrappedLayer = nil;
         switch (sampleType) {
-            case AGSCustomTileLayerTypeCoreImageProcessed:
-                wrapperLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:sourceLayer
+            case AGSCustomTileLayerTypeCoreImageProcessedBlock:
+            {
+                wrappedLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:sourceLayer
                                                                    processingTilesWithBlock:[AGSProcessedTiledMapServiceLayer sepiaBlockWithIntensity:1.0]];
+            }
+                break;
+
+            case AGSCustomTileLayerTypeCoreImageProcessedFilter:
+            {
+                CIFilter *filter = [CIFilter filterWithName:@"CISepiaTone"
+                                              keysAndValues:@"inputIntensity", [NSNumber numberWithDouble:1], nil];
+
+                wrappedLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:sourceLayer andCIFilter:filter];
+            }
                 break;
                 
             case AGSCustomTileLayerTypePrecached:
-                wrapperLayer = [[AGSPrecacheTiledServiceLayer alloc] initWithTiledLayer:sourceLayer];
+                wrappedLayer = [[AGSPrecacheTiledServiceLayer alloc] initWithTiledLayer:sourceLayer];
                 break;
         }
-        [wrapperLayers addObject:wrapperLayer];
+        [wrappedLayers addObject:wrappedLayer];
     }
 
-    for (AGSLayer *layer in wrapperLayers) {
+    for (AGSLayer *layer in wrappedLayers) {
         [self.mapView addMapLayer:layer];
     }
     

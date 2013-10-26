@@ -9,13 +9,6 @@
 #import <Foundation/Foundation.h>
 #import <ArcGIS/ArcGIS.h>
 
-extern NSString *const AGSGenericTileDataLoaded;
-
-@interface AGSGenericTileDataLoadedNotification : NSNotification
-@property (nonatomic, retain, readonly) NSData *tileData;
-@property (nonatomic, retain, readonly) AGSTileKey *tileKey;
-@end
-
 @class AGSGenericTileOperation;
 
 @protocol AGSGenericTileOperationDelegate <NSObject>

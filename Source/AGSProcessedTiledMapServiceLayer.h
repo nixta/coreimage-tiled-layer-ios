@@ -25,6 +25,8 @@ typedef NSData *(^AGSCITileProcessingBlock)(CIContext *context, NSData*);
 -(id)initWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential processingTilesWithBlock:(AGSCITileProcessingBlock)block;
 
 -(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer processingTilesWithBlock:(AGSCITileProcessingBlock)block;
+-(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer andCIFilter:(CIFilter *)filter;
 
 +(AGSCITileProcessingBlock)sepiaBlockWithIntensity:(double)intensity;
++(AGSCITileProcessingBlock)blockWithCIFilter:(CIFilter *)filter;
 @end

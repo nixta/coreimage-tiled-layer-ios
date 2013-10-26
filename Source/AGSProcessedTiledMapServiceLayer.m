@@ -40,6 +40,26 @@
     } copy];
 }
 
++(AGSCITileProcessingBlock)blockWithCIFilter:(CIFilter *)filter
+{
+    return [^(CIContext *context, NSData *tileData){
+        //        NSLog(@"tileData is nil: %@", tileData == nil?@"YES":@"NO");
+        CIImage *i = [CIImage imageWithData:tileData];
+        
+        CIContext *context_int = [CIContext contextWithOptions:nil];
+        
+        CIFilter *workingFilter = [filter copy];
+        [workingFilter setValue:i forKey:kCIInputImageKey];
+
+        CIImage *result = [workingFilter valueForKey:kCIOutputImageKey];
+        CGImageRef cgiRef = [context_int createCGImage:result fromRect:[result extent]];
+        UIImage *outImage = [UIImage imageWithCGImage:cgiRef];
+        CGImageRelease(cgiRef);
+        return UIImagePNGRepresentation(outImage);
+    } copy];
+}
+
+
 -(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer
     processingTilesWithBlock:(AGSCITileProcessingBlock)block
 {
@@ -55,6 +75,17 @@
                 return inputImageData;
             };
         }
+    }
+    return self;
+}
+
+-(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer andCIFilter:(CIFilter *)filter
+{
+    self = [super init];
+    if (self) {
+        _wrappedTiledLayer = wrappedTiledLayer;
+        _wrappedTiledLayer.delegate = self;
+        self.processBlock = [AGSProcessedTiledMapServiceLayer blockWithCIFilter:filter];
     }
     return self;
 }
