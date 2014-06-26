@@ -21,10 +21,10 @@
 @implementation AGSProcessedTiledMapServiceLayer
 @synthesize context = _context;
 
+#pragma mark - Predefined Filter Blocks
 +(AGSCITileProcessingBlock)sepiaBlockWithIntensity:(double)intensity
 {
-    return [^(CIContext *context, NSData *tileData){
-//        NSLog(@"tileData is nil: %@", tileData == nil?@"YES":@"NO");
+    return ^(CIContext *context, NSData *tileData){
         CIImage *i = [CIImage imageWithData:tileData];
         
         CIContext *context_int = [CIContext contextWithOptions:nil];
@@ -37,13 +37,12 @@
         UIImage *outImage = [UIImage imageWithCGImage:cgiRef];
         CGImageRelease(cgiRef);
         return UIImagePNGRepresentation(outImage);
-    } copy];
+    };
 }
 
 +(AGSCITileProcessingBlock)blockWithCIFilter:(CIFilter *)filter
 {
     return [^(CIContext *context, NSData *tileData){
-        //        NSLog(@"tileData is nil: %@", tileData == nil?@"YES":@"NO");
         CIImage *i = [CIImage imageWithData:tileData];
         
         CIContext *context_int = [CIContext contextWithOptions:nil];
@@ -59,7 +58,7 @@
     } copy];
 }
 
-
+#pragma mark - Initializers with existing Tiled Layer
 -(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer
     processingTilesWithBlock:(AGSCITileProcessingBlock)block
 {
@@ -90,6 +89,7 @@
     return self;
 }
 
+#pragma mark - Initializers with URLs
 -(id)initWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)cred processingTilesWithBlock:(AGSCITileProcessingBlock)block
 {
     return [self initWithTiledLayer:[AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:tiledLayerURL credential:cred]
@@ -114,6 +114,7 @@
                                           processingTilesWithBlock:block];
 }
 
+#pragma mark - Overrides for Layer Properties
 -(void)layerDidLoad:(AGSLayer *)layer
 {
     if (layer == _wrappedTiledLayer)
@@ -142,9 +143,9 @@
     return _wrappedTiledLayer.spatialReference;
 }
 
+#pragma mark - Overrides for Tile Requests
 -(void)requestTileForKey:(AGSTileKey *)key
 {
-    NSLog(@"RequestTileForKey: %@", key);
     AGSGenericTileOperation *op =
     [[AGSGenericTileOperation alloc] initWithTileKey:key
                                         forTiledLayer:_wrappedTiledLayer
@@ -171,6 +172,7 @@
     [_wrappedTiledLayer cancelRequestForKey:key];
 }
 
+#pragma mark - Tile Operation Delegate Method
 -(void)genericTileOperation:(AGSGenericTileOperation *)operation
              loadedTileData:(NSData *)tileData
                  forTileKey:(AGSTileKey *)tileKey

@@ -19,7 +19,6 @@
         _tileKey = tileKey;
         _sourceTiledLayer = sourceTiledLayer;
         _delegate = delegate;
-        NSLog(@"Created Operation");
     }
     return self;
 }
@@ -34,7 +33,6 @@
     NSData *myTileData = nil;
     
     @try {
-        NSLog(@"Getting tile: %@", self.tileKey);
         NSURL *tileUrl = [self.sourceTiledLayer urlForTileKey:self.tileKey];
         NSURLRequest *req = [NSURLRequest requestWithURL:tileUrl];
         NSURLResponse *resp = nil;
@@ -47,7 +45,6 @@
             NSLog(@"Error getting tile %@ from %@: %@", self.tileKey, tileUrl, error);
             return;
         }
-        NSLog(@"Got tile: %@", self.tileKey);
         if (self.isCancelled)
         {
             NSLog(@"Cancelled: %@", self.tileKey);
