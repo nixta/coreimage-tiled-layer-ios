@@ -16,51 +16,52 @@
 #pragma mark - Generic Tiled Layer
 @interface AGSProcessedTiledMapServiceLayer() <AGSGenericTileOperationDelegate, AGSLayerDelegate>
 @property (atomic, strong, readonly) CIContext *context;
+@property (nonatomic, copy) AGSCITileProcessingBlock processBlock;
 @end
 
 @implementation AGSProcessedTiledMapServiceLayer
 @synthesize context = _context;
 
-#pragma mark - Predefined Filter Blocks
-+(AGSCITileProcessingBlock)sepiaBlockWithIntensity:(double)intensity
+
+#pragma mark - Convenience Generators with Block
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL processingTilesWithBlock:(AGSCITileProcessingBlock)block
 {
-    return ^(CIContext *context, NSData *tileData){
-        CIImage *i = [CIImage imageWithData:tileData];
-        
-        CIContext *context_int = [CIContext contextWithOptions:nil];
-        
-        CIFilter *filter = [CIFilter filterWithName:@"CISepiaTone"
-                                      keysAndValues:kCIInputImageKey, i,
-                            @"inputIntensity", [NSNumber numberWithDouble:intensity], nil];
-        CIImage *result = [filter valueForKey:kCIOutputImageKey];
-        CGImageRef cgiRef = [context_int createCGImage:result fromRect:[result extent]];
-        UIImage *outImage = [UIImage imageWithCGImage:cgiRef];
-        CGImageRelease(cgiRef);
-        return UIImagePNGRepresentation(outImage);
-    };
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:nil processingTilesWithBlock:block];
 }
 
-+(AGSCITileProcessingBlock)blockWithCIFilter:(CIFilter *)filter
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential processingTilesWithBlock:(AGSCITileProcessingBlock)block
 {
-    return [^(CIContext *context, NSData *tileData){
-        CIImage *i = [CIImage imageWithData:tileData];
-        
-        CIContext *context_int = [CIContext contextWithOptions:nil];
-        
-        CIFilter *workingFilter = [filter copy];
-        [workingFilter setValue:i forKey:kCIInputImageKey];
-
-        CIImage *result = [workingFilter valueForKey:kCIOutputImageKey];
-        CGImageRef cgiRef = [context_int createCGImage:result fromRect:[result extent]];
-        UIImage *outImage = [UIImage imageWithCGImage:cgiRef];
-        CGImageRelease(cgiRef);
-        return UIImagePNGRepresentation(outImage);
-    } copy];
+    AGSTiledServiceLayer *tiledLayer = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:tiledLayerURL credential:credential];
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processingTilesWithBlock:block];
 }
 
-#pragma mark - Initializers with existing Tiled Layer
--(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer
-    processingTilesWithBlock:(AGSCITileProcessingBlock)block
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processingTilesWithBlock:(AGSCITileProcessingBlock)block {
+    return [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:tiledLayer processingTilesWithBlock:block];
+}
+
+
+
+#pragma mark - Convenience Generators with Core Image Filter
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL imageFilter:(CIFilter *)filter
+{
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:nil imageFilter:filter];
+}
+
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential imageFilter:(CIFilter *)filter
+{
+    AGSTiledServiceLayer *tiledLayer = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:tiledLayerURL credential:credential];
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer imageFilter:filter];
+}
+
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilter:(CIFilter *)filter {
+    return [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:tiledLayer andCIFilter:filter];
+}
+
+
+
+
+#pragma mark - Initializers
+-(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer processingTilesWithBlock:(AGSCITileProcessingBlock)block
 {
     self = [super init];
     if (self) {
@@ -80,39 +81,11 @@
 
 -(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer andCIFilter:(CIFilter *)filter
 {
-    self = [super init];
-    if (self) {
-        _wrappedTiledLayer = wrappedTiledLayer;
-        _wrappedTiledLayer.delegate = self;
-        self.processBlock = [AGSProcessedTiledMapServiceLayer blockWithCIFilter:filter];
-    }
+    self = [self initWithTiledLayer:wrappedTiledLayer processingTilesWithBlock:[AGSProcessedTiledMapServiceLayer blockWithCIFilter:filter]];
     return self;
 }
 
-#pragma mark - Initializers with URLs
--(id)initWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)cred processingTilesWithBlock:(AGSCITileProcessingBlock)block
-{
-    return [self initWithTiledLayer:[AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:tiledLayerURL credential:cred]
-           processingTilesWithBlock:block];
-}
 
--(id)initWithURL:(NSURL *)tiledLayerURL processingTilesWithBlock:(AGSCITileProcessingBlock)block
-{
-    return [self initWithURL:tiledLayerURL credential:nil processingTilesWithBlock:block];
-}
-
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL processingTilesWithBlock:(AGSCITileProcessingBlock)block
-{
-    return [[AGSProcessedTiledMapServiceLayer alloc] initWithURL:tiledLayerURL
-                                          processingTilesWithBlock:block];
-}
-
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential processingTilesWithBlock:(AGSCITileProcessingBlock)block
-{
-    return [[AGSProcessedTiledMapServiceLayer alloc] initWithURL:tiledLayerURL
-                                                        credential:credential
-                                          processingTilesWithBlock:block];
-}
 
 #pragma mark - Overrides for Layer Properties
 -(void)layerDidLoad:(AGSLayer *)layer
@@ -146,12 +119,9 @@
 #pragma mark - Overrides for Tile Requests
 -(void)requestTileForKey:(AGSTileKey *)key
 {
-    AGSGenericTileOperation *op =
-    [[AGSGenericTileOperation alloc] initWithTileKey:key
-                                        forTiledLayer:_wrappedTiledLayer
-                                         forDelegate:self];
-    
-    [[AGSRequestOperation sharedOperationQueue] addOperation:op];
+    [[AGSRequestOperation sharedOperationQueue] addOperation:[AGSGenericTileOperation tileOperationWithTileKey:key
+                                                                                                 forTiledLayer:_wrappedTiledLayer
+                                                                                                   forDelegate:self]];
 }
 
 -(void)cancelRequestForKey:(AGSTileKey *)key
@@ -172,6 +142,7 @@
     [_wrappedTiledLayer cancelRequestForKey:key];
 }
 
+
 #pragma mark - Tile Operation Delegate Method
 -(void)genericTileOperation:(AGSGenericTileOperation *)operation
              loadedTileData:(NSData *)tileData
@@ -183,6 +154,8 @@
     }
 }
 
+
+#pragma mark - CIContext Management
 -(CIContext *)context
 {
     static dispatch_once_t onceToken;
@@ -192,5 +165,25 @@
         }];
     });
     return _context;
+}
+
+
+#pragma mark - Predefined Filter Blocks
++(AGSCITileProcessingBlock)blockWithCIFilter:(CIFilter *)filter
+{
+    return [^(CIContext *context, NSData *tileData){
+        CIImage *i = [CIImage imageWithData:tileData];
+        
+        CIContext *context_int = [CIContext contextWithOptions:nil];
+        
+        CIFilter *workingFilter = [filter copy];
+        [workingFilter setValue:i forKey:kCIInputImageKey];
+        
+        CIImage *result = [workingFilter valueForKey:kCIOutputImageKey];
+        CGImageRef cgiRef = [context_int createCGImage:result fromRect:[result extent]];
+        UIImage *outImage = [UIImage imageWithCGImage:cgiRef];
+        CGImageRelease(cgiRef);
+        return UIImagePNGRepresentation(outImage);
+    } copy];
 }
 @end

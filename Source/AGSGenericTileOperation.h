@@ -20,6 +20,10 @@
 
 #pragma mark - Generic Tile Operation
 @interface AGSGenericTileOperation : NSOperation
++(AGSGenericTileOperation *)tileOperationWithTileKey:(AGSTileKey *)tileKey
+                                       forTiledLayer:(AGSTiledServiceLayer *)sourceTiledLayer
+                                         forDelegate:(id<AGSGenericTileOperationDelegate>)delegate;
+
 -(id)initWithTileKey:(AGSTileKey *)tileKey
         forTiledLayer:(AGSTiledServiceLayer *)sourceTiledLayer
          forDelegate:(id<AGSGenericTileOperationDelegate>)delegate;

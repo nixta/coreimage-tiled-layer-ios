@@ -14,13 +14,6 @@
 @property (weak, nonatomic) IBOutlet AGSMapView *mapView;
 @end
 
-typedef enum
-{
-    AGSCustomTileLayerTypeCoreImageProcessedBlock,
-    AGSCustomTileLayerTypeCoreImageProcessedFilter,
-    AGSCustomTileLayerTypePrecached
-} AGSCustomTileLayerType;
-
 #define kStreet2DURL @"http://server.arcgisonline.com/ArcGIS/rest/services/ESRI_StreetMap_World_2D/MapServer"
 #define kTopoURL @"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer"
 #define kGreyURL @"http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer"
@@ -38,40 +31,14 @@ typedef enum
         [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:[NSURL URLWithString:kGreyRefURL]]
     ];
 
-    AGSCustomTileLayerType sampleType = AGSCustomTileLayerTypeCoreImageProcessedFilter;
-
-    NSMutableArray *wrappedLayers = [NSMutableArray array];
+    CIFilter *filter = [CIFilter filterWithName:@"CISepiaTone"
+                                  keysAndValues:@"inputIntensity", [NSNumber numberWithDouble:1], nil];
     
     for (id sourceLayer in sourceLayers) {
-        id wrappedLayer = nil;
-        switch (sampleType) {
-            case AGSCustomTileLayerTypeCoreImageProcessedBlock:
-            {
-                wrappedLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:sourceLayer
-                                                                   processingTilesWithBlock:[AGSProcessedTiledMapServiceLayer sepiaBlockWithIntensity:1.0]];
-            }
-                break;
-
-            case AGSCustomTileLayerTypeCoreImageProcessedFilter:
-            {
-                CIFilter *filter = [CIFilter filterWithName:@"CISepiaTone"
-                                              keysAndValues:@"inputIntensity", [NSNumber numberWithDouble:1], nil];
-
-                wrappedLayer = [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:sourceLayer andCIFilter:filter];
-            }
-                break;
-                
-            case AGSCustomTileLayerTypePrecached:
-                wrappedLayer = [[AGSPrecacheTiledServiceLayer alloc] initWithTiledLayer:sourceLayer];
-                break;
-        }
-        [wrappedLayers addObject:wrappedLayer];
+        AGSTiledServiceLayer *wrappedLayer = [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:sourceLayer imageFilter:filter];
+        [self.mapView addMapLayer:wrappedLayer];
     }
 
-    for (AGSLayer *layer in wrappedLayers) {
-        [self.mapView addMapLayer:layer];
-    }
-    
     [self.mapView enableWrapAround];
 
     self.mapView.layerDelegate = self;

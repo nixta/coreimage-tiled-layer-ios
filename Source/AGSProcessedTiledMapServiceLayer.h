@@ -9,24 +9,30 @@
 #import <Foundation/Foundation.h>
 #import <ArcGIS/ArcGIS.h>
 
+
+// Return PNG NSData for a UIImage as returned by UIImagePNGRepresentation()
 typedef NSData *(^AGSCITileProcessingBlock)(CIContext *context, NSData*);
+
+
 
 @interface AGSProcessedTiledMapServiceLayer : AGSTiledServiceLayer
 @property (nonatomic, strong, readonly) AGSTiledServiceLayer * wrappedTiledLayer;
-@property (nonatomic, copy) AGSCITileProcessingBlock processBlock;
 
+#pragma mark - Generators with CIFilter
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
+                                           imageFilter:(CIFilter *)filter;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
+                                            credential:(AGSCredential *)credential
+                                           imageFilter:(CIFilter *)filter;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer
+                                                  imageFilter:(CIFilter *)filter;
+
+#pragma mark - Generators with full processing block
 +(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
                               processingTilesWithBlock:(AGSCITileProcessingBlock)block;
 +(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
                                             credential:(AGSCredential *)credential
                               processingTilesWithBlock:(AGSCITileProcessingBlock)block;
-
--(id)initWithURL:(NSURL *)tiledLayerURL processingTilesWithBlock:(AGSCITileProcessingBlock)block;
--(id)initWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential processingTilesWithBlock:(AGSCITileProcessingBlock)block;
-
--(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer processingTilesWithBlock:(AGSCITileProcessingBlock)block;
--(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer andCIFilter:(CIFilter *)filter;
-
-+(AGSCITileProcessingBlock)sepiaBlockWithIntensity:(double)intensity;
-+(AGSCITileProcessingBlock)blockWithCIFilter:(CIFilter *)filter;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer
+                                     processingTilesWithBlock:(AGSCITileProcessingBlock)block;
 @end

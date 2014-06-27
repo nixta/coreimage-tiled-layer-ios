@@ -9,6 +9,10 @@
 #import "AGSGenericTileOperation.h"
 
 @implementation AGSGenericTileOperation
++(AGSGenericTileOperation *)tileOperationWithTileKey:(AGSTileKey *)tileKey forTiledLayer:(AGSTiledServiceLayer *)sourceTiledLayer forDelegate:(id<AGSGenericTileOperationDelegate>)delegate {
+    return [[AGSGenericTileOperation alloc] initWithTileKey:tileKey forTiledLayer:sourceTiledLayer forDelegate:delegate];
+}
+
 -(id)initWithTileKey:(AGSTileKey *)tileKey
        forTiledLayer:(AGSTiledServiceLayer *)sourceTiledLayer
          forDelegate:(id<AGSGenericTileOperationDelegate>)delegate;
