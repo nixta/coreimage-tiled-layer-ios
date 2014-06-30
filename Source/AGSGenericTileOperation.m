@@ -49,26 +49,23 @@
             NSLog(@"Error getting tile %@ from %@: %@", self.tileKey, tileUrl, error);
             return;
         }
+
         if (self.isCancelled)
         {
             NSLog(@"Cancelled: %@", self.tileKey);
             return;
         }
+
+        if (self.delegate &&
+            [self.delegate respondsToSelector:@selector(genericTileOperation:loadedTileData:forTileKey:)])
+        {
+            [self.delegate genericTileOperation:self
+                                 loadedTileData:myTileData
+                                     forTileKey:self.tileKey];
+        }
     }
     @catch (NSException *exception) {
         NSLog(@"Exception getting tile %@: %@", self.tileKey, exception);
-    }
-    @finally {
-        if (!self.isCancelled)
-        {
-            if (self.delegate &&
-                [self.delegate respondsToSelector:@selector(genericTileOperation:loadedTileData:forTileKey:)])
-            {
-                [self.delegate genericTileOperation:self
-                                     loadedTileData:myTileData
-                                         forTileKey:self.tileKey];
-            }
-        }
     }
 }
 @end

@@ -59,6 +59,24 @@
 
 
 
+#pragma mark - Convenicen Generators with Array of Core Image Filters
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL imageFilters:(NSArray *)filters {
+    AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer blockWithCIFilters:filters];
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL processingTilesWithBlock:block];
+}
+
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential imageFilters:(NSArray *)filters {
+    AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer blockWithCIFilters:filters];
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:credential processingTilesWithBlock:block];
+}
+
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilters:(NSArray *)filters {
+    AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer blockWithCIFilters:filters];
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processingTilesWithBlock:block];
+}
+
+
+
 
 #pragma mark - Initializers
 -(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer processingTilesWithBlock:(AGSCITileProcessingBlock)block
@@ -70,7 +88,7 @@
         self.processBlock = block;
         if (!self.processBlock)
         {
-            self.processBlock = ^(CIContext *context, NSData *inputImageData) {
+            self.processBlock = ^(NSData *inputImageData) {
                 NSLog(@"Implement a block to process tile data on the way to the map!");
                 return inputImageData;
             };
@@ -133,8 +151,8 @@
         {
             if ([((AGSGenericTileOperation *)op).tileKey isEqualToTileKey:key])
             {
-                NSLog(@"Found operation. Cancelling…");
                 [((AGSGenericTileOperation *)op) cancel];
+                NSLog(@"Found and cancelled operation.");
                 return;
             }
         }
@@ -150,40 +168,51 @@
 {
     if (!operation.isCancelled)
     {
-        [self setTileData:self.processBlock(self.context, tileData) forKey:tileKey];
+        [self setTileData:self.processBlock(tileData) forKey:tileKey];
     }
-}
-
-
-#pragma mark - CIContext Management
--(CIContext *)context
-{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        _context = [CIContext contextWithOptions:@{
-            kCIContextUseSoftwareRenderer:[NSNumber numberWithBool:NO]
-        }];
-    });
-    return _context;
 }
 
 
 #pragma mark - Predefined Filter Blocks
 +(AGSCITileProcessingBlock)blockWithCIFilter:(CIFilter *)filter
 {
-    return [^(CIContext *context, NSData *tileData){
-        CIImage *i = [CIImage imageWithData:tileData];
+    return ^(NSData *tileData){
+        CIContext *context = [CIContext contextWithOptions:nil];
         
-        CIContext *context_int = [CIContext contextWithOptions:nil];
-        
-        CIFilter *workingFilter = [filter copy];
-        [workingFilter setValue:i forKey:kCIInputImageKey];
-        
-        CIImage *result = [workingFilter valueForKey:kCIOutputImageKey];
-        CGImageRef cgiRef = [context_int createCGImage:result fromRect:[result extent]];
+        CIFilter *workingFilter = [filter copy]; // CIFilter is not threadsafe
+        [workingFilter setValue:[CIImage imageWithData:tileData] forKey:kCIInputImageKey];
+
+        CGImageRef cgiRef = [context createCGImage:workingFilter.outputImage fromRect:[workingFilter.outputImage extent]];
         UIImage *outImage = [UIImage imageWithCGImage:cgiRef];
         CGImageRelease(cgiRef);
+//        return UIImagePNGRepresentation([UIImage imageWithData:tileData]);
         return UIImagePNGRepresentation(outImage);
-    } copy];
+    };
 }
+
++(AGSCITileProcessingBlock)blockWithCIFilters:(NSArray *)filters
+{
+    return ^(NSData *tileData){
+        UIImage *inImage = [UIImage imageWithData:tileData];
+        CIContext *context = [CIContext contextWithOptions:nil];
+
+        CIImage *workingFilterResult = [CIImage imageWithData:tileData];
+        for (CIFilter *filter in filters) {
+            CIFilter *workingFilter = [filter copy]; // CIFilter is not threadsafe
+            [workingFilter setValue:workingFilterResult forKey:kCIInputImageKey];
+            workingFilterResult = workingFilter.outputImage;
+        }
+        CGImageRef cgiRef = [context createCGImage:workingFilterResult fromRect:[workingFilterResult extent]];
+        UIImage *outImage = [UIImage imageWithCGImage:cgiRef];
+        CGImageRelease(cgiRef);
+        if (outImage.size.width > inImage.size.width) {
+            CGRect newFrame = CGRectMake(2, 6, inImage.size.width, inImage.size.height);
+            CGImageRef newRef = CGImageCreateWithImageInRect(outImage.CGImage, newFrame);
+            outImage = [UIImage imageWithCGImage:newRef];
+        }
+        return UIImagePNGRepresentation(outImage);
+    };
+}
+
+
 @end

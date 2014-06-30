@@ -24,10 +24,6 @@
                                        forTiledLayer:(AGSTiledServiceLayer *)sourceTiledLayer
                                          forDelegate:(id<AGSGenericTileOperationDelegate>)delegate;
 
--(id)initWithTileKey:(AGSTileKey *)tileKey
-        forTiledLayer:(AGSTiledServiceLayer *)sourceTiledLayer
-         forDelegate:(id<AGSGenericTileOperationDelegate>)delegate;
-
 @property (nonatomic, strong, readonly) AGSTileKey *tileKey;
 @property (nonatomic, strong, readonly) AGSTiledServiceLayer *sourceTiledLayer;
 @property (nonatomic, weak, readonly) id<AGSGenericTileOperationDelegate> delegate;

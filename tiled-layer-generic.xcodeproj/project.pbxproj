@@ -154,16 +154,16 @@
 		E169808016387B6C00A1F2E5 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				D9F11CA51806004300A15C07 /* AGSGenericTileOperation.h */,
-				D9F11CA61806004300A15C07 /* AGSGenericTileOperation.m */,
-				D9F11CA31805F4DB00A15C07 /* Core Image Processed Layer */,
-				D9F11CA41805F4E800A15C07 /* Pre-cached Layer */,
 				E169808916387B6C00A1F2E5 /* SampleAppDelegate.h */,
 				E169808A16387B6C00A1F2E5 /* SampleAppDelegate.m */,
 				E169809216387B6C00A1F2E5 /* MainStoryboard_iPhone.storyboard */,
 				E169809516387B6C00A1F2E5 /* MainStoryboard_iPad.storyboard */,
 				E169809816387B6C00A1F2E5 /* SampleViewController.h */,
 				E169809916387B6C00A1F2E5 /* SampleViewController.m */,
+				D9F11CA51806004300A15C07 /* AGSGenericTileOperation.h */,
+				D9F11CA61806004300A15C07 /* AGSGenericTileOperation.m */,
+				D9F11CA31805F4DB00A15C07 /* Core Image Processed Layer */,
+				D9F11CA41805F4E800A15C07 /* Pre-cached Layer */,
 				E169808116387B6C00A1F2E5 /* Supporting Files */,
 			);
 			path = Source;

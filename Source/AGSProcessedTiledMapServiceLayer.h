@@ -10,8 +10,8 @@
 #import <ArcGIS/ArcGIS.h>
 
 
-// Return PNG NSData for a UIImage as returned by UIImagePNGRepresentation()
-typedef NSData *(^AGSCITileProcessingBlock)(CIContext *context, NSData*);
+// Return PNG NSData for a UIImage as returned by UIImagePNGRepresentation(). Pass in NSData for a UIImage.
+typedef NSData *(^AGSCITileProcessingBlock)(NSData*);
 
 
 
@@ -26,6 +26,15 @@ typedef NSData *(^AGSCITileProcessingBlock)(CIContext *context, NSData*);
                                            imageFilter:(CIFilter *)filter;
 +(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer
                                                   imageFilter:(CIFilter *)filter;
+
+#pragma mark - Generators with CIFilter
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
+                                          imageFilters:(NSArray *)filters;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
+                                            credential:(AGSCredential *)credential
+                                          imageFilters:(NSArray *)filters;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer
+                                                 imageFilters:(NSArray *)filters;
 
 #pragma mark - Generators with full processing block
 +(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
