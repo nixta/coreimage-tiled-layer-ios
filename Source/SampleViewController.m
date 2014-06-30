@@ -8,7 +8,6 @@
 #import "SampleViewController.h"
 #import <ArcGIS/ArcGIS.h>
 #import "AGSProcessedTiledMapServiceLayer.h"
-#import "AGSPrecacheTiledServiceLayer.h"
 
 #define kStreet2DURL @"http://server.arcgisonline.com/ArcGIS/rest/services/ESRI_StreetMap_World_2D/MapServer"
 #define kTopoURL @"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer"
