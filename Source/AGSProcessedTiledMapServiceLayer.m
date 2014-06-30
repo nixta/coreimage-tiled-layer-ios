@@ -144,7 +144,6 @@
 
 -(void)cancelRequestForKey:(AGSTileKey *)key
 {
-    NSLog(@"Cancel request for key: %@", key);
     for (id op in [AGSRequestOperation sharedOperationQueue].operations)
     {
         if ([op isKindOfClass:[AGSGenericTileOperation class]])
@@ -152,12 +151,11 @@
             if ([((AGSGenericTileOperation *)op).tileKey isEqualToTileKey:key])
             {
                 [((AGSGenericTileOperation *)op) cancel];
-                NSLog(@"Found and cancelled operation.");
                 return;
             }
         }
     }
-    [_wrappedTiledLayer cancelRequestForKey:key];
+    NSLog(@"Couldn't find operation to cancel for %@", key);
 }
 
 
@@ -176,18 +174,7 @@
 #pragma mark - Predefined Filter Blocks
 +(AGSCITileProcessingBlock)blockWithCIFilter:(CIFilter *)filter
 {
-    return ^(NSData *tileData){
-        CIContext *context = [CIContext contextWithOptions:nil];
-        
-        CIFilter *workingFilter = [filter copy]; // CIFilter is not threadsafe
-        [workingFilter setValue:[CIImage imageWithData:tileData] forKey:kCIInputImageKey];
-
-        CGImageRef cgiRef = [context createCGImage:workingFilter.outputImage fromRect:[workingFilter.outputImage extent]];
-        UIImage *outImage = [UIImage imageWithCGImage:cgiRef];
-        CGImageRelease(cgiRef);
-//        return UIImagePNGRepresentation([UIImage imageWithData:tileData]);
-        return UIImagePNGRepresentation(outImage);
-    };
+    return [AGSProcessedTiledMapServiceLayer blockWithCIFilters:@[filter]];
 }
 
 +(AGSCITileProcessingBlock)blockWithCIFilters:(NSArray *)filters
