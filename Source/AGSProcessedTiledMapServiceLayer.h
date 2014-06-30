@@ -19,29 +19,17 @@ typedef NSData *(^AGSCITileProcessingBlock)(NSData*);
 @property (nonatomic, strong, readonly) AGSTiledServiceLayer * wrappedTiledLayer;
 
 #pragma mark - Generators with CIFilter
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
-                                           imageFilter:(CIFilter *)filter;
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
-                                            credential:(AGSCredential *)credential
-                                           imageFilter:(CIFilter *)filter;
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer
-                                                  imageFilter:(CIFilter *)filter;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url imageFilter:(CIFilter *)filter;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url credential:(AGSCredential *)cred imageFilter:(CIFilter *)filter;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilter:(CIFilter *)filter;
 
-#pragma mark - Generators with CIFilter
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
-                                          imageFilters:(NSArray *)filters;
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
-                                            credential:(AGSCredential *)credential
-                                          imageFilters:(NSArray *)filters;
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer
-                                                 imageFilters:(NSArray *)filters;
+#pragma mark - Generators with array of CIFilters
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url imageFilters:(NSArray *)filters;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url credential:(AGSCredential *)cred imageFilters:(NSArray *)filters;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilters:(NSArray *)filters;
 
-#pragma mark - Generators with full processing block
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
-                              processingTilesWithBlock:(AGSCITileProcessingBlock)block;
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL
-                                            credential:(AGSCredential *)credential
-                              processingTilesWithBlock:(AGSCITileProcessingBlock)block;
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer
-                                     processingTilesWithBlock:(AGSCITileProcessingBlock)block;
+#pragma mark - Generators with fully custom AGSCITileProcessingBlock
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url processingTilesWithBlock:(AGSCITileProcessingBlock)block;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url credential:(AGSCredential *)cred processingTilesWithBlock:(AGSCITileProcessingBlock)block;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processingTilesWithBlock:(AGSCITileProcessingBlock)block;
 @end
