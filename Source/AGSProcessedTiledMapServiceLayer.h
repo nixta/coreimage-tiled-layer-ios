@@ -9,14 +9,10 @@
 #import <Foundation/Foundation.h>
 #import <ArcGIS/ArcGIS.h>
 
-
-// Return PNG NSData for a UIImage as returned by UIImagePNGRepresentation(). Pass in NSData for a UIImage.
+// Return Processed PNG NSData for a UIImage as returned by UIImagePNGRepresentation()
 typedef NSData *(^AGSCITileProcessingBlock)(NSData*);
 
-
 @interface AGSProcessedTiledMapServiceLayer : AGSTiledServiceLayer
-@property (nonatomic, strong, readonly) AGSTiledServiceLayer * wrappedTiledLayer;
-
 #pragma mark - Generators with CIFilter
 +(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url imageFilter:(CIFilter *)filter;
 +(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url credential:(AGSCredential *)cred imageFilter:(CIFilter *)filter;
@@ -28,7 +24,7 @@ typedef NSData *(^AGSCITileProcessingBlock)(NSData*);
 +(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilters:(NSArray *)filters;
 
 #pragma mark - Generators with fully custom AGSCITileProcessingBlock
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url processingTilesWithBlock:(AGSCITileProcessingBlock)block;
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url credential:(AGSCredential *)cred processingTilesWithBlock:(AGSCITileProcessingBlock)block;
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processingTilesWithBlock:(AGSCITileProcessingBlock)block;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url processingBlock:(AGSCITileProcessingBlock)block;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url credential:(AGSCredential *)cred processingBlock:(AGSCITileProcessingBlock)block;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processingBlock:(AGSCITileProcessingBlock)block;
 @end

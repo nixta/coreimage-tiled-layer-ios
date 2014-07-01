@@ -34,7 +34,7 @@
     [super viewDidLoad];
 
     NSArray *sourceLayersAndFilters = @[
-        @[[AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:[NSURL URLWithString:kGreyURL]], blueFilter],
+        @[[AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:[NSURL URLWithString:kGreyURL]], @[pixelFilter, blueFilter]],
         @[[AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:[NSURL URLWithString:kGreyRefURL]], redFilter]
     ];
 
@@ -46,11 +46,9 @@
         }
     }
 
-    [self.mapView zoomToEnvelope:[AGSEnvelope envelopeWithXmin:167894.02290923594
-                                                          ymin:2404569.5470481226
-                                                          xmax:3298754.7014692225
-                                                          ymax:7766168.4590821
-                                              spatialReference:[AGSSpatialReference spatialReferenceWithWKID:102100]]
+    [self.mapView zoomToEnvelope:[AGSEnvelope envelopeWithXmin:167894 ymin:2404569
+                                                          xmax:3298754 ymax:7766168
+                                              spatialReference:[AGSSpatialReference webMercatorSpatialReference]]
                         animated:NO];
     
     [self.mapView enableWrapAround];
