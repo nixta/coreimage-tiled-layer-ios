@@ -1,5 +1,5 @@
 //
-//  AGSTileLayerGeneric.m
+//  AGSProcessedTiledMapServiceLayer.m
 //  tiled-layer-generic
 //
 //  Created by Nicholas Furness on 8/3/13.
@@ -15,12 +15,46 @@
 #pragma mark - Generic Tile Operation Delegate Potocol
 #pragma mark - Generic Tiled Layer
 @interface AGSProcessedTiledMapServiceLayer() <AGSGenericTileOperationDelegate, AGSLayerDelegate>
-@property (atomic, strong, readonly) CIContext *context;
 @property (nonatomic, copy) AGSCITileProcessingBlock processBlock;
 @end
 
 @implementation AGSProcessedTiledMapServiceLayer
-@synthesize context = _context;
+#pragma mark - Convenience Generators with Core Image Filter
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL imageFilter:(CIFilter *)filter
+{
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL imageFilters:@[filter]];
+}
+
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential imageFilter:(CIFilter *)filter
+{
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:credential imageFilters:@[filter]];
+}
+
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilter:(CIFilter *)filter
+{
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer imageFilters:@[filter]];
+}
+
+
+
+#pragma mark - Convenience Generators with Array of Core Image Filters
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL imageFilters:(NSArray *)filters
+{
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:nil imageFilters:filters];
+}
+
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential imageFilters:(NSArray *)filters
+{
+    AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer blockWithCIFilters:filters];
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:credential processingTilesWithBlock:block];
+}
+
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilters:(NSArray *)filters
+{
+    AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer blockWithCIFilters:filters];
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processingTilesWithBlock:block];
+}
+
 
 
 #pragma mark - Convenience Generators with Block
@@ -35,50 +69,15 @@
     return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processingTilesWithBlock:block];
 }
 
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processingTilesWithBlock:(AGSCITileProcessingBlock)block {
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processingTilesWithBlock:(AGSCITileProcessingBlock)block
+{
     return [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:tiledLayer processingTilesWithBlock:block];
 }
 
 
 
-#pragma mark - Convenience Generators with Core Image Filter
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL imageFilter:(CIFilter *)filter
-{
-    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:nil imageFilter:filter];
-}
 
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential imageFilter:(CIFilter *)filter
-{
-    AGSTiledServiceLayer *tiledLayer = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:tiledLayerURL credential:credential];
-    return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer imageFilter:filter];
-}
-
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilter:(CIFilter *)filter {
-    return [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:tiledLayer andCIFilter:filter];
-}
-
-
-
-#pragma mark - Convenicen Generators with Array of Core Image Filters
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL imageFilters:(NSArray *)filters {
-    AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer blockWithCIFilters:filters];
-    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL processingTilesWithBlock:block];
-}
-
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential imageFilters:(NSArray *)filters {
-    AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer blockWithCIFilters:filters];
-    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:credential processingTilesWithBlock:block];
-}
-
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilters:(NSArray *)filters {
-    AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer blockWithCIFilters:filters];
-    return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processingTilesWithBlock:block];
-}
-
-
-
-
-#pragma mark - Initializers
+#pragma mark - Initializer
 -(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer processingTilesWithBlock:(AGSCITileProcessingBlock)block
 {
     self = [super init];
@@ -86,8 +85,7 @@
         _wrappedTiledLayer = wrappedTiledLayer;
         _wrappedTiledLayer.delegate = self;
         self.processBlock = block;
-        if (!self.processBlock)
-        {
+        if (!self.processBlock) {
             self.processBlock = ^(NSData *inputImageData) {
                 NSLog(@"Implement a block to process tile data on the way to the map!");
                 return inputImageData;
@@ -97,19 +95,12 @@
     return self;
 }
 
--(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer andCIFilter:(CIFilter *)filter
-{
-    self = [self initWithTiledLayer:wrappedTiledLayer processingTilesWithBlock:[AGSProcessedTiledMapServiceLayer blockWithCIFilter:filter]];
-    return self;
-}
-
 
 
 #pragma mark - Overrides for Layer Properties
 -(void)layerDidLoad:(AGSLayer *)layer
 {
-    if (layer == _wrappedTiledLayer)
-    {
+    if (layer == _wrappedTiledLayer) {
         [self layerDidLoad];
     }
 }
@@ -144,12 +135,9 @@
 
 -(void)cancelRequestForKey:(AGSTileKey *)key
 {
-    for (id op in [AGSRequestOperation sharedOperationQueue].operations)
-    {
-        if ([op isKindOfClass:[AGSGenericTileOperation class]])
-        {
-            if ([((AGSGenericTileOperation *)op).tileKey isEqualToTileKey:key])
-            {
+    for (id op in [AGSRequestOperation sharedOperationQueue].operations) {
+        if ([op isKindOfClass:[AGSGenericTileOperation class]]) {
+            if ([((AGSGenericTileOperation *)op).tileKey isEqualToTileKey:key]) {
                 [((AGSGenericTileOperation *)op) cancel];
                 return;
             }
@@ -160,23 +148,15 @@
 
 
 #pragma mark - Tile Operation Delegate Method
--(void)genericTileOperation:(AGSGenericTileOperation *)operation
-             loadedTileData:(NSData *)tileData
-                 forTileKey:(AGSTileKey *)tileKey
+-(void)genericTileOperation:(AGSGenericTileOperation *)operation loadedTileData:(NSData *)tileData forTileKey:(AGSTileKey *)tileKey
 {
-    if (!operation.isCancelled)
-    {
+    if (!operation.isCancelled) {
         [self setTileData:self.processBlock(tileData) forKey:tileKey];
     }
 }
 
 
 #pragma mark - Predefined Filter Blocks
-+(AGSCITileProcessingBlock)blockWithCIFilter:(CIFilter *)filter
-{
-    return [AGSProcessedTiledMapServiceLayer blockWithCIFilters:@[filter]];
-}
-
 +(AGSCITileProcessingBlock)blockWithCIFilters:(NSArray *)filters
 {
     return ^(NSData *tileData){
@@ -200,6 +180,4 @@
         return UIImagePNGRepresentation(outImage);
     };
 }
-
-
 @end

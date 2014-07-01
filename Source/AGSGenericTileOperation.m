@@ -9,17 +9,15 @@
 #import "AGSGenericTileOperation.h"
 
 @implementation AGSGenericTileOperation
-+(AGSGenericTileOperation *)tileOperationWithTileKey:(AGSTileKey *)tileKey forTiledLayer:(AGSTiledServiceLayer *)sourceTiledLayer forDelegate:(id<AGSGenericTileOperationDelegate>)delegate {
++(AGSGenericTileOperation *)tileOperationWithTileKey:(AGSTileKey *)tileKey forTiledLayer:(AGSTiledServiceLayer *)sourceTiledLayer forDelegate:(id<AGSGenericTileOperationDelegate>)delegate
+{
     return [[AGSGenericTileOperation alloc] initWithTileKey:tileKey forTiledLayer:sourceTiledLayer forDelegate:delegate];
 }
 
--(id)initWithTileKey:(AGSTileKey *)tileKey
-       forTiledLayer:(AGSTiledServiceLayer *)sourceTiledLayer
-         forDelegate:(id<AGSGenericTileOperationDelegate>)delegate;
+-(id)initWithTileKey:(AGSTileKey *)tileKey forTiledLayer:(AGSTiledServiceLayer *)sourceTiledLayer forDelegate:(id<AGSGenericTileOperationDelegate>)delegate
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         _tileKey = tileKey;
         _sourceTiledLayer = sourceTiledLayer;
         _delegate = delegate;
@@ -29,8 +27,7 @@
 
 -(void)main
 {
-    if (self.isCancelled)
-    {
+    if (self.isCancelled) {
         return;
     }
     
@@ -44,24 +41,19 @@
         myTileData = [NSURLConnection sendSynchronousRequest:req
                                            returningResponse:&resp
                                                        error:&error];
-        if (error)
-        {
+        if (error) {
             NSLog(@"Error getting tile %@ from %@: %@", self.tileKey, tileUrl, error);
             return;
-        }
-
-        if (self.isCancelled)
-        {
+        } else if (self.isCancelled) {
             NSLog(@"Cancelled: %@", self.tileKey);
             return;
-        }
-
-        if (self.delegate &&
-            [self.delegate respondsToSelector:@selector(genericTileOperation:loadedTileData:forTileKey:)])
-        {
-            [self.delegate genericTileOperation:self
-                                 loadedTileData:myTileData
-                                     forTileKey:self.tileKey];
+        } else {
+            if (self.delegate &&
+                [self.delegate respondsToSelector:@selector(genericTileOperation:loadedTileData:forTileKey:)]) {
+                [self.delegate genericTileOperation:self
+                                     loadedTileData:myTileData
+                                         forTileKey:self.tileKey];
+            }
         }
     }
     @catch (NSException *exception) {

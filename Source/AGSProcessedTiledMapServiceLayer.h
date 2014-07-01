@@ -1,5 +1,5 @@
 //
-//  AGSTileLayerGeneric.h
+//  AGSProcessedTiledMapServiceLayer.h
 //  tiled-layer-generic
 //
 //  Created by Nicholas Furness on 8/3/13.
@@ -12,7 +12,6 @@
 
 // Return PNG NSData for a UIImage as returned by UIImagePNGRepresentation(). Pass in NSData for a UIImage.
 typedef NSData *(^AGSCITileProcessingBlock)(NSData*);
-
 
 
 @interface AGSProcessedTiledMapServiceLayer : AGSTiledServiceLayer
