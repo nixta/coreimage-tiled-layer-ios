@@ -24,7 +24,7 @@ typedef NSData *(^AGSCITileProcessingBlock)(NSData*);
 +(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilters:(NSArray *)filters;
 
 #pragma mark - Generators with fully custom AGSCITileProcessingBlock
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url processingBlock:(AGSCITileProcessingBlock)block;
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url credential:(AGSCredential *)cred processingBlock:(AGSCITileProcessingBlock)block;
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processingBlock:(AGSCITileProcessingBlock)block;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url processBlock:(AGSCITileProcessingBlock)block;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url credential:(AGSCredential *)cred processBlock:(AGSCITileProcessingBlock)block;
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processBlock:(AGSCITileProcessingBlock)block;
 @end

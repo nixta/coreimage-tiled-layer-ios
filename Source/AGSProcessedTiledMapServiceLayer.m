@@ -7,25 +7,24 @@
 //
 
 #import "AGSProcessedTiledMapServiceLayer.h"
-#import "AGSGenericTileOperation.h"
 
 
-@interface AGSProcessedTiledMapServiceLayer() <AGSGenericTileOperationDelegate, AGSLayerDelegate>
+@interface AGSProcessedTiledMapServiceLayer() <AGSLayerDelegate>
 @property (nonatomic, strong) AGSTiledServiceLayer * wrappedTiledLayer;
-@property (nonatomic, copy) AGSCITileProcessingBlock processingBlock;
+@property (nonatomic, copy) AGSCITileProcessingBlock processBlock;
 @end
 
 
 @implementation AGSProcessedTiledMapServiceLayer
 #pragma mark - Initializer
--(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer processingBlock:(AGSCITileProcessingBlock)block
+-(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer processBlock:(AGSCITileProcessingBlock)block
 {
     self = [super init];
     if (self) {
         self.wrappedTiledLayer = wrappedTiledLayer;
-        self.processingBlock = block;
-        if (!self.processingBlock) {
-            self.processingBlock = ^(NSData *inputImageData) {
+        self.processBlock = block;
+        if (!self.processBlock) {
+            self.processBlock = ^(NSData *inputImageData) {
                 NSLog(@"Implement a block to process tile data on the way to the map!");
                 return inputImageData;
             };
@@ -79,31 +78,14 @@
 #pragma mark - Impersonation Overrides for Tile Requests on Contained Layer
 -(void)requestTileForKey:(AGSTileKey *)key
 {
-    AGSGenericTileOperation *tileOperation = [AGSGenericTileOperation tileOperationWithTileKey:key
-                                                                                 forTiledLayer:self.wrappedTiledLayer
-                                                                                   forDelegate:self];
-    [[AGSRequestOperation sharedOperationQueue] addOperation:tileOperation];
-}
-
--(void)cancelRequestForKey:(AGSTileKey *)key
-{
-    for (id op in [AGSRequestOperation sharedOperationQueue].operations) {
-        if ([op isKindOfClass:[AGSGenericTileOperation class]] &&
-            [key isEqualToTileKey:op]) {
-                [((AGSGenericTileOperation *)op) cancel];
-                return;
-        }
-    }
-    NSLog(@"Couldn't find operation to cancel for %@", key);
-}
-
-
-
-#pragma mark - Generic Tile Operation Delegate Method
--(void)genericTileOperation:(AGSGenericTileOperation *)operation loadedTileData:(NSData *)tileData forTileKey:(AGSTileKey *)tileKey
-{
-    if (!operation.isCancelled) {
-        [self setTileData:self.processingBlock(tileData) forKey:tileKey];
+    NSURL *tileURL = [self.wrappedTiledLayer urlForTileKey:key];
+    NSURLRequest *req = [NSURLRequest requestWithURL:tileURL];
+    NSError *error = nil;
+    NSData *data = [AGSRequest dataForRequest:req error:&error];
+    if (!error) {
+        [self setTileData:self.processBlock(data) forKey:key];
+    } else {
+        NSLog(@"Error getting tile %@ from %@: %@", key, tileURL, error);
     }
 }
 
@@ -136,32 +118,32 @@
 +(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential imageFilters:(NSArray *)filters
 {
     AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer blockWithCIFilters:filters];
-    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:credential processingBlock:block];
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:credential processBlock:block];
 }
 
 +(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilters:(NSArray *)filters
 {
     AGSCITileProcessingBlock block = [AGSProcessedTiledMapServiceLayer blockWithCIFilters:filters];
-    return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processingBlock:block];
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processBlock:block];
 }
 
 
 
 #pragma mark - Convenience Generators with Block
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL processingBlock:(AGSCITileProcessingBlock)block
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL processBlock:(AGSCITileProcessingBlock)block
 {
-    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:nil processingBlock:block];
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:nil processBlock:block];
 }
 
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential processingBlock:(AGSCITileProcessingBlock)block
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential processBlock:(AGSCITileProcessingBlock)block
 {
     AGSTiledServiceLayer *tiledLayer = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:tiledLayerURL credential:credential];
-    return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processingBlock:block];
+    return [AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processBlock:block];
 }
 
-+(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processingBlock:(AGSCITileProcessingBlock)block
++(AGSProcessedTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processBlock:(AGSCITileProcessingBlock)block
 {
-    return [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:tiledLayer processingBlock:block];
+    return [[AGSProcessedTiledMapServiceLayer alloc] initWithTiledLayer:tiledLayer processBlock:block];
 }
 
 
