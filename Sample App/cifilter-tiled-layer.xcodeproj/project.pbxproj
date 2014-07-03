@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		651F37FA17AFFA21002E5457 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 651F37F917AFFA21002E5457 /* CoreImage.framework */; };
-		65E8978B17AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65E8978A17AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.m */; };
+		65E8978B17AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65E8978A17AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.m */; };
 		D95F921416F2147F0007D7F5 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D95F921316F2147F0007D7F5 /* libc++.dylib */; };
 		D95F921616F214870007D7F5 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D95F921516F214870007D7F5 /* OpenGLES.framework */; };
 		E169807B16387B6C00A1F2E5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E169807A16387B6C00A1F2E5 /* UIKit.framework */; };
@@ -35,18 +35,18 @@
 
 /* Begin PBXFileReference section */
 		651F37F917AFFA21002E5457 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
-		65E8978917AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGSProcessedTiledMapServiceLayer.h; sourceTree = "<group>"; };
-		65E8978A17AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGSProcessedTiledMapServiceLayer.m; sourceTree = "<group>"; };
+		65E8978917AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AGSCoreImageFilteredTiledMapServiceLayer.h; path = ../../CIFilterLayer/AGSCoreImageFilteredTiledMapServiceLayer.h; sourceTree = "<group>"; };
+		65E8978A17AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AGSCoreImageFilteredTiledMapServiceLayer.m; path = ../../CIFilterLayer/AGSCoreImageFilteredTiledMapServiceLayer.m; sourceTree = "<group>"; };
 		D95F921316F2147F0007D7F5 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		D95F921516F214870007D7F5 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		E169807616387B6C00A1F2E5 /* tiled-layer-generic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "tiled-layer-generic.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E169807616387B6C00A1F2E5 /* cifilter-tiled-layer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "cifilter-tiled-layer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E169807A16387B6C00A1F2E5 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		E169807C16387B6C00A1F2E5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E169807E16387B6C00A1F2E5 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		E169808216387B6C00A1F2E5 /* tiled-layer-generic-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "tiled-layer-generic-Info.plist"; sourceTree = "<group>"; };
+		E169808216387B6C00A1F2E5 /* cifilter-tiled-layer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "cifilter-tiled-layer-Info.plist"; sourceTree = "<group>"; };
 		E169808416387B6C00A1F2E5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E169808616387B6C00A1F2E5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		E169808816387B6C00A1F2E5 /* tiled-layer-generic-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "tiled-layer-generic-Prefix.pch"; sourceTree = "<group>"; };
+		E169808816387B6C00A1F2E5 /* cifilter-tiled-layer-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "cifilter-tiled-layer-Prefix.pch"; sourceTree = "<group>"; };
 		E169808916387B6C00A1F2E5 /* SampleAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SampleAppDelegate.h; sourceTree = "<group>"; };
 		E169808A16387B6C00A1F2E5 /* SampleAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SampleAppDelegate.m; sourceTree = "<group>"; };
 		E169808C16387B6C00A1F2E5 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
@@ -93,8 +93,8 @@
 		D9F11CA31805F4DB00A15C07 /* Core Image Processed Layer */ = {
 			isa = PBXGroup;
 			children = (
-				65E8978917AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.h */,
-				65E8978A17AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.m */,
+				65E8978917AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.h */,
+				65E8978A17AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.m */,
 			);
 			name = "Core Image Processed Layer";
 			sourceTree = "<group>";
@@ -111,7 +111,7 @@
 		E169807716387B6C00A1F2E5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E169807616387B6C00A1F2E5 /* tiled-layer-generic.app */,
+				E169807616387B6C00A1F2E5 /* cifilter-tiled-layer.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -155,10 +155,10 @@
 			isa = PBXGroup;
 			children = (
 				E16980B216387C5500A1F2E5 /* ArcGIS.bundle */,
-				E169808216387B6C00A1F2E5 /* tiled-layer-generic-Info.plist */,
+				E169808216387B6C00A1F2E5 /* cifilter-tiled-layer-Info.plist */,
 				E169808316387B6C00A1F2E5 /* InfoPlist.strings */,
 				E169808616387B6C00A1F2E5 /* main.m */,
-				E169808816387B6C00A1F2E5 /* tiled-layer-generic-Prefix.pch */,
+				E169808816387B6C00A1F2E5 /* cifilter-tiled-layer-Prefix.pch */,
 				E169808C16387B6C00A1F2E5 /* Default.png */,
 				E169808E16387B6C00A1F2E5 /* Default@2x.png */,
 				E169809016387B6C00A1F2E5 /* Default-568h@2x.png */,
@@ -169,9 +169,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E169807516387B6C00A1F2E5 /* tiled-layer-generic */ = {
+		E169807516387B6C00A1F2E5 /* cifilter-tiled-layer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E169809D16387B6C00A1F2E5 /* Build configuration list for PBXNativeTarget "tiled-layer-generic" */;
+			buildConfigurationList = E169809D16387B6C00A1F2E5 /* Build configuration list for PBXNativeTarget "cifilter-tiled-layer" */;
 			buildPhases = (
 				E169807216387B6C00A1F2E5 /* Sources */,
 				E169807316387B6C00A1F2E5 /* Frameworks */,
@@ -181,9 +181,9 @@
 			);
 			dependencies = (
 			);
-			name = "tiled-layer-generic";
+			name = "cifilter-tiled-layer";
 			productName = Demo1;
-			productReference = E169807616387B6C00A1F2E5 /* tiled-layer-generic.app */;
+			productReference = E169807616387B6C00A1F2E5 /* cifilter-tiled-layer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -201,7 +201,7 @@
 					};
 				};
 			};
-			buildConfigurationList = E169807016387B6C00A1F2E5 /* Build configuration list for PBXProject "tiled-layer-generic" */;
+			buildConfigurationList = E169807016387B6C00A1F2E5 /* Build configuration list for PBXProject "cifilter-tiled-layer" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -213,7 +213,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E169807516387B6C00A1F2E5 /* tiled-layer-generic */,
+				E169807516387B6C00A1F2E5 /* cifilter-tiled-layer */,
 			);
 		};
 /* End PBXProject section */
@@ -243,7 +243,7 @@
 				E169808716387B6C00A1F2E5 /* main.m in Sources */,
 				E169808B16387B6C00A1F2E5 /* SampleAppDelegate.m in Sources */,
 				E169809A16387B6C00A1F2E5 /* SampleViewController.m in Sources */,
-				65E8978B17AD93790037C5BB /* AGSProcessedTiledMapServiceLayer.m in Sources */,
+				65E8978B17AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,15 +347,15 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/SDKs/ArcGIS/iOS/**";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Source/tiled-layer-generic-Prefix.pch";
-				INFOPLIST_FILE = "Source/tiled-layer-generic-Info.plist";
+				GCC_PREFIX_HEADER = "Source/cifilter-tiled-layer-Prefix.pch";
+				INFOPLIST_FILE = "Source/cifilter-tiled-layer-Info.plist";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
 					"-framework",
 					ArcGIS,
 				);
-				PRODUCT_NAME = "tiled-layer-generic";
+				PRODUCT_NAME = "cifilter-tiled-layer";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
@@ -368,15 +368,15 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/SDKs/ArcGIS/iOS/**";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Source/tiled-layer-generic-Prefix.pch";
-				INFOPLIST_FILE = "Source/tiled-layer-generic-Info.plist";
+				GCC_PREFIX_HEADER = "Source/cifilter-tiled-layer-Prefix.pch";
+				INFOPLIST_FILE = "Source/cifilter-tiled-layer-Info.plist";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
 					"-framework",
 					ArcGIS,
 				);
-				PRODUCT_NAME = "tiled-layer-generic";
+				PRODUCT_NAME = "cifilter-tiled-layer";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
@@ -385,7 +385,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		E169807016387B6C00A1F2E5 /* Build configuration list for PBXProject "tiled-layer-generic" */ = {
+		E169807016387B6C00A1F2E5 /* Build configuration list for PBXProject "cifilter-tiled-layer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E169809B16387B6C00A1F2E5 /* Debug */,
@@ -394,7 +394,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E169809D16387B6C00A1F2E5 /* Build configuration list for PBXNativeTarget "tiled-layer-generic" */ = {
+		E169809D16387B6C00A1F2E5 /* Build configuration list for PBXNativeTarget "cifilter-tiled-layer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E169809E16387B6C00A1F2E5 /* Debug */,

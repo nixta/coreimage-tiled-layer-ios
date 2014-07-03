@@ -7,7 +7,7 @@
 
 #import "SampleViewController.h"
 #import <ArcGIS/ArcGIS.h>
-#import "AGSProcessedTiledMapServiceLayer.h"
+#import "AGSCoreImageFilteredTiledMapServiceLayer.h"
 
 #define kStreet2DURL @"http://server.arcgisonline.com/ArcGIS/rest/services/ESRI_StreetMap_World_2D/MapServer"
 #define kTopoURL @"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer"
@@ -40,9 +40,9 @@
 
     for (NSArray *layerAndFilter in sourceLayersAndFilters) {
         if ([layerAndFilter[1] isKindOfClass:[NSArray class]]) {
-            [self.mapView addMapLayer:[AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:layerAndFilter[0] imageFilters:layerAndFilter[1]]];
+            [self.mapView addMapLayer:[AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithTiledLayer:layerAndFilter[0] imageFilters:layerAndFilter[1]]];
         } else {
-            [self.mapView addMapLayer:[AGSProcessedTiledMapServiceLayer tiledLayerWithTiledLayer:layerAndFilter[0] imageFilter:layerAndFilter[1]]];
+            [self.mapView addMapLayer:[AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithTiledLayer:layerAndFilter[0] imageFilter:layerAndFilter[1]]];
         }
     }
 
