@@ -19,8 +19,10 @@ The above example applies a [blue color](https://developer.apple.com/library/ios
 For example:
 
 ```Objective-C
-    CIFilter *blueFilter  = [CIFilter filterWithName:@"CIColorMonochrome" keysAndValues:@"inputColor", [CIColor colorWithRed:0 green:0 blue:1], nil];
-    CIFilter *pixelFilter = [CIFilter filterWithName:@"CIPixellate" keysAndValues:@"inputScale", [NSNumber numberWithDouble:8], nil];
+    CIFilter *blueFilter  = [CIFilter filterWithName:@"CIColorMonochrome" 
+                                       keysAndValues:@"inputColor", [CIColor colorWithRed:0 green:0 blue:1], nil];
+    CIFilter *pixelFilter = [CIFilter filterWithName:@"CIPixellate" 
+                                       keysAndValues:@"inputScale", [NSNumber numberWithDouble:8], nil];
     AGSTiledMapServiceLayer *greyBasemap = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:[NSURL URLWithString:kGreyURL]];
 
     AGSCoreImageFilteredTiledMapServiceLayer *bluePixelBasemap =
