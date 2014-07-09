@@ -9,21 +9,21 @@
 #import <Foundation/Foundation.h>
 #import <ArcGIS/ArcGIS.h>
 
-// Return Processed PNG NSData for a UIImage as returned by UIImagePNGRepresentation()
-typedef NSData *(^AGSCITileProcessingBlock)(NSData*);
-
 @interface AGSCoreImageFilteredTiledMapServiceLayer : AGSTiledServiceLayer
-#pragma mark - Generators with CIFilter
+#pragma mark - Factory methods using a single CIFilter
 +(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url imageFilter:(CIFilter *)filter;
 +(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url credential:(AGSCredential *)cred imageFilter:(CIFilter *)filter;
 +(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilter:(CIFilter *)filter;
 
-#pragma mark - Generators with array of CIFilters
+#pragma mark - Factory methods using an array of CIFilters applied in order
 +(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url imageFilters:(NSArray *)filters;
 +(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url credential:(AGSCredential *)cred imageFilters:(NSArray *)filters;
 +(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilters:(NSArray *)filters;
 
-#pragma mark - Generators with fully custom AGSCITileProcessingBlock
+#pragma mark - Factory methods using a fully custom AGSCITileProcessingBlock
+// Return Processed PNG NSData for a UIImage (as output by UIImagePNGRepresentation())
+typedef NSData *(^AGSCITileProcessingBlock)(NSData*);
+
 +(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url processBlock:(AGSCITileProcessingBlock)block;
 +(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)url credential:(AGSCredential *)cred processBlock:(AGSCITileProcessingBlock)block;
 +(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processBlock:(AGSCITileProcessingBlock)block;

@@ -53,6 +53,7 @@
 
 
 #pragma mark - Impersonation Overrides for Contained Layer Properties
+// See https://developers.arcgis.com/ios/api-reference/category_a_g_s_tiled_layer_07_for_subclass_eyes_only_08.html
 -(AGSTileInfo *)tileInfo
 {
     return self.wrappedTiledLayer.tileInfo;
@@ -76,6 +77,7 @@
 
 
 #pragma mark - Impersonation Overrides for Tile Requests on Contained Layer
+// See https://developers.arcgis.com/ios/api-reference/category_a_g_s_tiled_layer_07_for_subclass_eyes_only_08.html
 -(void)requestTileForKey:(AGSTileKey *)key
 {
     NSURL *tileURL = [self.wrappedTiledLayer urlForTileKey:key];
@@ -86,6 +88,7 @@
         [self setTileData:self.processBlock(data) forKey:key];
     } else {
         NSLog(@"Error getting tile %@ from %@: %@", key, tileURL, error);
+        [self setTileData:nil forKey:key];
     }
 }
 
