@@ -7,7 +7,7 @@
 
 #import "SampleViewController.h"
 #import <ArcGIS/ArcGIS.h>
-#import "AGSCoreImageFilteredTiledMapServiceLayer.h"
+#import "AGSCIFilteredTiledMapServiceLayer.h"
 
 #pragma mark - Basemap URLs
 #define kStreet2DURL @"http://server.arcgisonline.com/ArcGIS/rest/services/ESRI_StreetMap_World_2D/MapServer"
@@ -19,27 +19,37 @@
 
 #pragma mark - Sample Filters
 #define sepiaFilter [CIFilter filterWithName:@"CISepiaTone" keysAndValues:@"inputIntensity", [NSNumber numberWithDouble:1], nil]
+#define greenFilter [CIFilter filterWithName:@"CIColorMonochrome" keysAndValues:@"inputColor", [CIColor colorWithRed:0 green:1 blue:0], nil]
 #define blueFilter [CIFilter filterWithName:@"CIColorMonochrome" keysAndValues:@"inputColor", [CIColor colorWithRed:0 green:0 blue:1], nil]
 #define redFilter [CIFilter filterWithName:@"CIColorMonochrome" keysAndValues:@"inputColor", [CIColor colorWithRed:1 green:0 blue:0], nil]
-#define greenFilter [CIFilter filterWithName:@"CIColorMonochrome" keysAndValues:@"inputColor", [CIColor colorWithRed:0 green:1 blue:0], nil]
-#define blurFilter [CIFilter filterWithName:@"CIGaussianBlur" keysAndValues:@"inputRadius", [NSNumber numberWithDouble:1], nil]
 #define pixelFilter [CIFilter filterWithName:@"CIPixellate" keysAndValues:@"inputScale", [NSNumber numberWithDouble:8], nil]
+#define blurFilter [CIFilter filterWithName:@"CIGaussianBlur" keysAndValues:@"inputRadius", [NSNumber numberWithDouble:1], nil]
 
 #pragma mark - View Controller
-@interface SampleViewController () <AGSMapViewLayerDelegate, AGSLayerDelegate>
+@interface SampleViewController () <AGSMapViewLayerDelegate, AGSLayerDelegate, AGSMapViewTouchDelegate>
 @property (weak, nonatomic) IBOutlet AGSMapView *mapView;
+
+@property (nonatomic, assign) BOOL showFilteredLayers;
+
+@property (nonatomic, strong) AGSLayer *greyBasemapLayer;
+@property (nonatomic, strong) AGSLayer *greyReferenceLayer;
+@property (nonatomic, strong) AGSLayer *filteredBasemapLayer;
+@property (nonatomic, strong) AGSLayer *filteredReferenceLayer;
 @end
 
 @implementation SampleViewController
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
+    self.filteredBasemapLayer = [AGSCIFilteredTiledMapServiceLayer tiledLayerWithURL:[NSURL URLWithString:kGreyURL]
+                                                                        imageFilters:@[blueFilter, pixelFilter]];
+    self.filteredReferenceLayer = [AGSCIFilteredTiledMapServiceLayer tiledLayerWithURL:[NSURL URLWithString:kGreyRefURL]
+                                                                           imageFilter:redFilter];
+    
     // Add a couple of layers with CIFilters on them.
-    [self.mapView addMapLayer:[AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithURL:[NSURL URLWithString:kGreyURL]
-                                                                             imageFilters:@[pixelFilter, blueFilter]]];
-    [self.mapView addMapLayer:[AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithURL:[NSURL URLWithString:kGreyRefURL]
-                                                                              imageFilter:redFilter]];
+    [self.mapView addMapLayer:self.filteredBasemapLayer];
+    [self.mapView addMapLayer:self.filteredReferenceLayer];
 
     // Zoom the map
     [self.mapView zoomToEnvelope:[AGSEnvelope envelopeWithXmin:167894 ymin:2404569
@@ -48,5 +58,49 @@
                         animated:NO];
     
     [self.mapView enableWrapAround];
+    
+    self.mapView.touchDelegate = self;
+    
+    self.showFilteredLayers = YES;
+}
+
+-(BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
+#pragma mark - Demo App Filter Toggle
+-(void)mapView:(AGSMapView *)mapView didClickAtPoint:(CGPoint)screen mapPoint:(AGSPoint *)mappoint features:(NSDictionary *)features {
+    self.showFilteredLayers = !self.showFilteredLayers;
+}
+
+-(void)setShowFilteredLayers:(BOOL)showFilteredLayers
+{
+    _showFilteredLayers = showFilteredLayers;
+    self.filteredBasemapLayer.visible = showFilteredLayers;
+    self.filteredReferenceLayer.visible = showFilteredLayers;
+    
+    if (!_showFilteredLayers) {
+        // Only reference (and hence lazy-load) these when first needed.
+        self.greyBasemapLayer.visible = YES;
+        self.greyReferenceLayer.visible = YES;
+    }
+}
+
+#pragma mark - Lazy Load (and add to map) of unfiltered Grey Basemap layers
+-(AGSLayer *)greyBasemapLayer {
+    if (!_greyBasemapLayer) {
+        _greyBasemapLayer = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:[NSURL URLWithString:kGreyURL]];
+        AGSLayer *layerToInsertBefore = self.greyReferenceLayer;
+        [self.mapView insertMapLayer:_greyBasemapLayer atIndex:[self.mapView.mapLayers indexOfObject:layerToInsertBefore]];
+    }
+    return _greyBasemapLayer;
+}
+
+-(AGSLayer *)greyReferenceLayer {
+    if (!_greyReferenceLayer) {
+        _greyReferenceLayer = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:[NSURL URLWithString:kGreyRefURL]];
+        [self.mapView insertMapLayer:_greyReferenceLayer atIndex:[self.mapView.mapLayers indexOfObject:self.filteredBasemapLayer]];
+    }
+    return _greyReferenceLayer;
 }
 @end

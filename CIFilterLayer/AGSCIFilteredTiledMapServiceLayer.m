@@ -6,16 +6,16 @@
 //  Copyright (c) 2013 Esri. All rights reserved.
 //
 
-#import "AGSCoreImageFilteredTiledMapServiceLayer.h"
+#import "AGSCIFilteredTiledMapServiceLayer.h"
 
 
-@interface AGSCoreImageFilteredTiledMapServiceLayer() <AGSLayerDelegate>
+@interface AGSCIFilteredTiledMapServiceLayer() <AGSLayerDelegate>
 @property (nonatomic, strong) AGSTiledServiceLayer * wrappedTiledLayer;
 @property (nonatomic, copy) AGSCITileProcessingBlock processBlock;
 @end
 
 
-@implementation AGSCoreImageFilteredTiledMapServiceLayer
+@implementation AGSCIFilteredTiledMapServiceLayer
 #pragma mark - Initializer
 -(id)initWithTiledLayer:(AGSTiledServiceLayer *)wrappedTiledLayer processBlock:(AGSCITileProcessingBlock)block
 {
@@ -95,58 +95,58 @@
 
 
 #pragma mark - Convenience Generators with Core Image Filter
-+(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL imageFilter:(CIFilter *)filter
++(AGSCIFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL imageFilter:(CIFilter *)filter
 {
-    return [AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL imageFilters:@[filter]];
+    return [AGSCIFilteredTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL imageFilters:@[filter]];
 }
 
-+(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential imageFilter:(CIFilter *)filter
++(AGSCIFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential imageFilter:(CIFilter *)filter
 {
-    return [AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:credential imageFilters:@[filter]];
+    return [AGSCIFilteredTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:credential imageFilters:@[filter]];
 }
 
-+(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilter:(CIFilter *)filter
++(AGSCIFilteredTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilter:(CIFilter *)filter
 {
-    return [AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer imageFilters:@[filter]];
+    return [AGSCIFilteredTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer imageFilters:@[filter]];
 }
 
 
 
 #pragma mark - Convenience Generators with Array of Core Image Filters
-+(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL imageFilters:(NSArray *)filters
++(AGSCIFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL imageFilters:(NSArray *)filters
 {
-    return [AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:nil imageFilters:filters];
+    return [AGSCIFilteredTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:nil imageFilters:filters];
 }
 
-+(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential imageFilters:(NSArray *)filters
++(AGSCIFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential imageFilters:(NSArray *)filters
 {
-    AGSCITileProcessingBlock block = [AGSCoreImageFilteredTiledMapServiceLayer blockWithCIFilters:filters];
-    return [AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:credential processBlock:block];
+    AGSCITileProcessingBlock block = [AGSCIFilteredTiledMapServiceLayer blockWithCIFilters:filters];
+    return [AGSCIFilteredTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:credential processBlock:block];
 }
 
-+(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilters:(NSArray *)filters
++(AGSCIFilteredTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer imageFilters:(NSArray *)filters
 {
-    AGSCITileProcessingBlock block = [AGSCoreImageFilteredTiledMapServiceLayer blockWithCIFilters:filters];
-    return [AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processBlock:block];
+    AGSCITileProcessingBlock block = [AGSCIFilteredTiledMapServiceLayer blockWithCIFilters:filters];
+    return [AGSCIFilteredTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processBlock:block];
 }
 
 
 
 #pragma mark - Convenience Generators with Block
-+(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL processBlock:(AGSCITileProcessingBlock)block
++(AGSCIFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL processBlock:(AGSCITileProcessingBlock)block
 {
-    return [AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:nil processBlock:block];
+    return [AGSCIFilteredTiledMapServiceLayer tiledLayerWithURL:tiledLayerURL credential:nil processBlock:block];
 }
 
-+(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential processBlock:(AGSCITileProcessingBlock)block
++(AGSCIFilteredTiledMapServiceLayer *)tiledLayerWithURL:(NSURL *)tiledLayerURL credential:(AGSCredential *)credential processBlock:(AGSCITileProcessingBlock)block
 {
     AGSTiledServiceLayer *tiledLayer = [AGSTiledMapServiceLayer tiledMapServiceLayerWithURL:tiledLayerURL credential:credential];
-    return [AGSCoreImageFilteredTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processBlock:block];
+    return [AGSCIFilteredTiledMapServiceLayer tiledLayerWithTiledLayer:tiledLayer processBlock:block];
 }
 
-+(AGSCoreImageFilteredTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processBlock:(AGSCITileProcessingBlock)block
++(AGSCIFilteredTiledMapServiceLayer *)tiledLayerWithTiledLayer:(AGSTiledServiceLayer *)tiledLayer processBlock:(AGSCITileProcessingBlock)block
 {
-    return [[AGSCoreImageFilteredTiledMapServiceLayer alloc] initWithTiledLayer:tiledLayer processBlock:block];
+    return [[AGSCIFilteredTiledMapServiceLayer alloc] initWithTiledLayer:tiledLayer processBlock:block];
 }
 
 

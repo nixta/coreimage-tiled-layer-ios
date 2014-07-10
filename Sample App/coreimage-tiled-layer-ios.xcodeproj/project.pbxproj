@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		651F37FA17AFFA21002E5457 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 651F37F917AFFA21002E5457 /* CoreImage.framework */; };
-		65E8978B17AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65E8978A17AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.m */; };
+		65E8978B17AD93790037C5BB /* AGSCIFilteredTiledMapServiceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65E8978A17AD93790037C5BB /* AGSCIFilteredTiledMapServiceLayer.m */; };
 		D95F921416F2147F0007D7F5 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D95F921316F2147F0007D7F5 /* libc++.dylib */; };
 		D95F921616F214870007D7F5 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D95F921516F214870007D7F5 /* OpenGLES.framework */; };
 		E169807B16387B6C00A1F2E5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E169807A16387B6C00A1F2E5 /* UIKit.framework */; };
@@ -35,8 +35,8 @@
 
 /* Begin PBXFileReference section */
 		651F37F917AFFA21002E5457 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
-		65E8978917AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AGSCoreImageFilteredTiledMapServiceLayer.h; path = ../../CIFilterLayer/AGSCoreImageFilteredTiledMapServiceLayer.h; sourceTree = "<group>"; };
-		65E8978A17AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AGSCoreImageFilteredTiledMapServiceLayer.m; path = ../../CIFilterLayer/AGSCoreImageFilteredTiledMapServiceLayer.m; sourceTree = "<group>"; };
+		65E8978917AD93790037C5BB /* AGSCIFilteredTiledMapServiceLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AGSCIFilteredTiledMapServiceLayer.h; path = ../../CIFilterLayer/AGSCIFilteredTiledMapServiceLayer.h; sourceTree = "<group>"; };
+		65E8978A17AD93790037C5BB /* AGSCIFilteredTiledMapServiceLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AGSCIFilteredTiledMapServiceLayer.m; path = ../../CIFilterLayer/AGSCIFilteredTiledMapServiceLayer.m; sourceTree = "<group>"; };
 		D95F921316F2147F0007D7F5 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		D95F921516F214870007D7F5 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		E169807616387B6C00A1F2E5 /* coreimage-tiled-layer-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "coreimage-tiled-layer-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -93,8 +93,8 @@
 		D9F11CA31805F4DB00A15C07 /* Core Image Tiled Layer */ = {
 			isa = PBXGroup;
 			children = (
-				65E8978917AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.h */,
-				65E8978A17AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.m */,
+				65E8978917AD93790037C5BB /* AGSCIFilteredTiledMapServiceLayer.h */,
+				65E8978A17AD93790037C5BB /* AGSCIFilteredTiledMapServiceLayer.m */,
 			);
 			name = "Core Image Tiled Layer";
 			sourceTree = "<group>";
@@ -243,7 +243,7 @@
 				E169808716387B6C00A1F2E5 /* main.m in Sources */,
 				E169808B16387B6C00A1F2E5 /* SampleAppDelegate.m in Sources */,
 				E169809A16387B6C00A1F2E5 /* SampleViewController.m in Sources */,
-				65E8978B17AD93790037C5BB /* AGSCoreImageFilteredTiledMapServiceLayer.m in Sources */,
+				65E8978B17AD93790037C5BB /* AGSCIFilteredTiledMapServiceLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
