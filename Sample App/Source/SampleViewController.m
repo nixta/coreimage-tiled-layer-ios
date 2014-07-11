@@ -18,18 +18,20 @@
 #define kImageryRefURL @"http://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer"
 
 #pragma mark - Sample Filters
-#define sepiaFilter [CIFilter filterWithName:@"CISepiaTone" keysAndValues:@"inputIntensity", [NSNumber numberWithDouble:1], nil]
-#define greenFilter [CIFilter filterWithName:@"CIColorMonochrome" keysAndValues:@"inputColor", [CIColor colorWithRed:0 green:1 blue:0], nil]
-#define blueFilter [CIFilter filterWithName:@"CIColorMonochrome" keysAndValues:@"inputColor", [CIColor colorWithRed:0 green:0 blue:1], nil]
-#define redFilter [CIFilter filterWithName:@"CIColorMonochrome" keysAndValues:@"inputColor", [CIColor colorWithRed:1 green:0 blue:0], nil]
-#define pixelFilter [CIFilter filterWithName:@"CIPixellate" keysAndValues:@"inputScale", [NSNumber numberWithDouble:8], nil]
-#define blurFilter [CIFilter filterWithName:@"CIGaussianBlur" keysAndValues:@"inputRadius", [NSNumber numberWithDouble:1], nil]
+#define sepiaFilter [CIFilter filterWithName:@"CISepiaTone" keysAndValues:kCIInputIntensityKey, [NSNumber numberWithDouble:1], nil]
+#define greenFilter [CIFilter filterWithName:@"CIColorMonochrome" keysAndValues:kCIInputColorKey, [CIColor colorWithRed:0 green:1 blue:0], nil]
+#define blueFilter [CIFilter filterWithName:@"CIColorMonochrome" keysAndValues:kCIInputColorKey, [CIColor colorWithRed:0 green:0 blue:1], nil]
+#define redFilter [CIFilter filterWithName:@"CIColorMonochrome" keysAndValues:kCIInputColorKey, [CIColor colorWithRed:1 green:0 blue:0], nil]
+#define pixelFilter [CIFilter filterWithName:@"CIPixellate" keysAndValues:kCIInputScaleKey, [NSNumber numberWithDouble:8], \
+                                                                          kCIInputCenterKey, [CIVector vectorWithX:256.0f/2 Y:256.0f/2], nil]
+#define blurFilter [CIFilter filterWithName:@"CIGaussianBlur" keysAndValues:kCIInputRadiusKey, [NSNumber numberWithDouble:1], nil]
+#define toneFilter [CIFilter filterWithName:@"CIToneCurve" keysAndValues:@"inputPoint4", [CIVector vectorWithX:1 Y:0], nil]
 
 #pragma mark - View Controller
-@interface SampleViewController () <AGSMapViewLayerDelegate, AGSLayerDelegate, AGSMapViewTouchDelegate>
+@interface SampleViewController () <AGSMapViewTouchDelegate>
 @property (weak, nonatomic) IBOutlet AGSMapView *mapView;
 
-@property (nonatomic, assign) BOOL showFilteredLayers;
+@property (nonatomic, assign) BOOL showUnFilteredLayers;
 
 @property (nonatomic, strong) AGSLayer *greyBasemapLayer;
 @property (nonatomic, strong) AGSLayer *greyReferenceLayer;
@@ -38,10 +40,15 @@
 @end
 
 @implementation SampleViewController
+#pragma mark - ViewController Entry Point
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
+
+    
+    // BEGIN MAGIC
+
     self.filteredBasemapLayer = [AGSCIFilteredTiledMapServiceLayer tiledLayerWithURL:[NSURL URLWithString:kGreyURL]
                                                                         imageFilters:@[blueFilter, pixelFilter]];
     self.filteredReferenceLayer = [AGSCIFilteredTiledMapServiceLayer tiledLayerWithURL:[NSURL URLWithString:kGreyRefURL]
@@ -51,35 +58,35 @@
     [self.mapView addMapLayer:self.filteredBasemapLayer];
     [self.mapView addMapLayer:self.filteredReferenceLayer];
 
-    // Zoom the map
+    // END MAGIC
+    
+    
+    
     [self.mapView zoomToEnvelope:[AGSEnvelope envelopeWithXmin:167894 ymin:2404569
                                                           xmax:3298754 ymax:7766168
                                               spatialReference:[AGSSpatialReference webMercatorSpatialReference]]
                         animated:NO];
-    
     [self.mapView enableWrapAround];
     
     self.mapView.touchDelegate = self;
-    
-    self.showFilteredLayers = YES;
 }
 
--(BOOL)prefersStatusBarHidden {
-    return YES;
-}
+
+
 
 #pragma mark - Demo App Filter Toggle
 -(void)mapView:(AGSMapView *)mapView didClickAtPoint:(CGPoint)screen mapPoint:(AGSPoint *)mappoint features:(NSDictionary *)features {
-    self.showFilteredLayers = !self.showFilteredLayers;
+    self.showUnFilteredLayers = !self.showUnFilteredLayers;
 }
 
--(void)setShowFilteredLayers:(BOOL)showFilteredLayers
+#pragma mark - Property Setter Override
+-(void)setShowUnFilteredLayers:(BOOL)showUnFilteredLayers
 {
-    _showFilteredLayers = showFilteredLayers;
-    self.filteredBasemapLayer.visible = showFilteredLayers;
-    self.filteredReferenceLayer.visible = showFilteredLayers;
+    _showUnFilteredLayers = showUnFilteredLayers;
+    self.filteredBasemapLayer.visible = !showUnFilteredLayers;
+    self.filteredReferenceLayer.visible = !showUnFilteredLayers;
     
-    if (!_showFilteredLayers) {
+    if (_showUnFilteredLayers) {
         // Only reference (and hence lazy-load) these when first needed.
         self.greyBasemapLayer.visible = YES;
         self.greyReferenceLayer.visible = YES;
@@ -102,5 +109,10 @@
         [self.mapView insertMapLayer:_greyReferenceLayer atIndex:[self.mapView.mapLayers indexOfObject:self.filteredBasemapLayer]];
     }
     return _greyReferenceLayer;
+}
+
+#pragma mark - iOS 7 UI
+-(BOOL)prefersStatusBarHidden {
+    return YES;
 }
 @end

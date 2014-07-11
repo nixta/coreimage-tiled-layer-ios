@@ -155,26 +155,35 @@
 +(AGSCITileProcessingBlock)blockWithCIFilters:(NSArray *)filters
 {
     return ^(NSData *tileData){
+        // Create Core Image context
         CIContext *context = [CIContext contextWithOptions:nil];
 
+        // Set up working data with initial image data
         CIImage *workingFilterResult = [CIImage imageWithData:tileData];
         CGRect initialExtent = workingFilterResult.extent;
+        
+        // For each filter in our array, process in sequence...
         for (CIFilter *filter in filters) {
-            CIFilter *workingFilter = [filter copy]; // CIFilter is not threadsafe
+            // CIFilter is not threadsafe
+            CIFilter *workingFilter = [filter copy];
+            // Output of last filter is input to next filter.
             [workingFilter setValue:workingFilterResult forKey:kCIInputImageKey];
             workingFilterResult = workingFilter.outputImage;
+            
+            if (initialExtent.size.width < workingFilterResult.extent.size.width) {
+                // Crop to original extent if the output is larger. Note, this assumes the output
+                // is centered appropriately and generates a -ve origin output extent. This is not
+                // necessarily default behaviour. E.g. in CIPixellate you should set
+                // inputCenter for the tile size.
+                workingFilterResult = [workingFilterResult imageByCroppingToRect:initialExtent];
+            }
         }
+        
+        // Prepare final output...
         CGImageRef cgiRef = [context createCGImage:workingFilterResult fromRect:[workingFilterResult extent]];
         UIImage *outImage = [UIImage imageWithCGImage:cgiRef];
         CGImageRelease(cgiRef);
         
-        if (initialExtent.size.width < outImage.size.width) {
-            // Experimental - in the case where images grow, crop them
-            UIImage *inImage = [UIImage imageWithData:tileData];
-            CGRect newFrame = CGRectMake(2, 6, inImage.size.width, inImage.size.height);
-            CGImageRef newRef = CGImageCreateWithImageInRect(outImage.CGImage, newFrame);
-            outImage = [UIImage imageWithCGImage:newRef];
-        }
         return UIImagePNGRepresentation(outImage);
     };
 }
