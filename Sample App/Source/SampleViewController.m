@@ -47,7 +47,7 @@
     
 
     
-    // BEGIN MAGIC
+    /// *******************************
 
     self.filteredBasemapLayer = [AGSCIFilteredTiledMapServiceLayer tiledLayerWithURL:[NSURL URLWithString:kGreyURL]
                                                                         imageFilters:@[blueFilter, pixelFilter]];
@@ -58,7 +58,7 @@
     [self.mapView addMapLayer:self.filteredBasemapLayer];
     [self.mapView addMapLayer:self.filteredReferenceLayer];
 
-    // END MAGIC
+    /// *******************************
     
     
     
